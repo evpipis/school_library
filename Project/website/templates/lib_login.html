@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+
+{% block title %} User Login {% endblock %}
+
+{% block content %}
+<form method="POST">
+  <h3 align="center"> User Login  for library {{id}} </h3>
+  
+  <div class="form-group">
+    <label for="username"> Username </label>
+    <input
+    type="text"
+    class="form-control"
+    id="username"
+    name="username"
+    placeholder="Enter Username"
+    />
+  </div>
+
+  <div class="form-group">
+    <label for="password"> Password </label>
+    <input
+    type="password"
+    class="form-control"
+    id="password"
+    name="password"
+    placeholder="Enter Password"
+    />
+  </div>
+
+  <div class="form-group">
+    <label for="role"> Role </label>
+    <select class="form-control" id="role" name="role">
+      <option value="member-student"> Member (student) </option>
+      <option value="member-teacher"> Member (teacher) </option>
+      <option value="manager"> Manager </option>
+    </select>
+  </div>
+
+  <br />
+  
+  <button type="submit" class="btn btn-primary">Login</button>
+</form>
+{% endblock %}

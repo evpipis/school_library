@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+
+{% block title %} Admin Login {% endblock %}
+
+{% block content %}
+<form method="POST">
+  <h3 align="center">Admin Login</h3>
+  
+  <div class="form-group">
+    <label for="username"> Username </label>
+    <input
+    type="text"
+    class="form-control"
+    id="username"
+    name="username"
+    placeholder="Enter Username"
+    />
+  </div>
+
+  <div class="form-group">
+    <label for="password"> Password </label>
+    <input
+    type="password"
+    class="form-control"
+    id="password"
+    name="password"
+    placeholder="Enter Password"
+    />
+  </div>
+
+  <!-- <div class="form-group">
+    <label for="email">Email Address</label>
+    <input
+    type="email"
+    class="form-control"
+    id="email"
+    name="email"
+    placeholder="Enter email"
+    />
+  </div>
+
+  <div class="form-group">
+    <label for="password">Password</label>
+    <input
+    type="password"
+    class="form-control"
+    id="password"
+    name="password"
+    placeholder="Enter password"
+    />
+  </div>
+
+  <div class="form-group">
+    <label for="ice-cream-choice">Choose a flavor:</label>
+    <select class="form-control" id="cars" name="cars">
+      <option value="volvo">Volvo</option>
+      <option value="saab">Saab</option>
+      <option value="fiat">Fiat</option>
+      <option value="audi">Audi</option>
+    </select>
+  </div> -->
+
+  <br />
+  
+  <button type="submit" class="btn btn-primary">Admin Login</button>
+</form>
+{% endblock %}
