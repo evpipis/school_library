@@ -72,9 +72,9 @@ def login(id):
 
                 flash('Sucessful login!', category='success')
                 if role == 'manager':
-                    return redirect(url_for('manager_views.operations', id=id))
+                    return redirect(url_for('manager_views.books', id=id))
                 elif role == 'member-student' or role == 'member-teacher':
-                    return redirect(url_for('member_views.operations', id=id))
+                    return redirect(url_for('member_views.books', id=id))
                 else:
                     flash('Login failed!', category='error')
             else:

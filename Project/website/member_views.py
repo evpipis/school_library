@@ -50,8 +50,26 @@ def logout(id):
 ### operations views
 
 @member_views.route('/lib<id>/member')
-@member_views.route('/lib<id>/member/operations')
+@member_views.route('/lib<id>/member/books')
 @library_exists
 @member_required
-def operations(id):
-    return render_template("member_operations.html", view='member', id=id)
+def books(id):
+    return render_template("member_books.html", view='member', id=id)
+
+@member_views.route('/lib<id>/member/my_borrowings')
+@library_exists
+@member_required
+def my_borrowings(id):
+    return render_template("member_my_borrowings.html", view='member', id=id)
+
+@member_views.route('/lib<id>/member/my_reviews')
+@library_exists
+@member_required
+def my_reviews(id):
+    return render_template("member_my_reviews.html", view='member', id=id)
+
+@member_views.route('/lib<id>/member/settings')
+@library_exists
+@member_required
+def settings(id):
+    return render_template("member_settings.html", view='member', id=id)

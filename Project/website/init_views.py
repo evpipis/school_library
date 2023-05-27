@@ -52,7 +52,7 @@ def admin_login():
                 # if not active they should not login!!!
                 flash('Sucessful login!', category='success')
                 print(session)
-                return redirect(url_for('admin_views.operations'))
+                return redirect(url_for('admin_views.libraries'))
             else:
                 flash('Login failed!', category='error')
             # add admin pages

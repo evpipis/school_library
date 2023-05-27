@@ -31,7 +31,17 @@ def logout():
 ### operations views
 
 @admin_views.route('/admin')
-@admin_views.route('/admin/operations')
+@admin_views.route('/admin/libraries')
 @admin_required
-def operations():
-    return render_template("admin_operations.html", view='admin')
+def libraries():
+    return render_template("admin_libraries.html", view='admin')
+
+@admin_views.route('/admin/managers')
+@admin_required
+def managers():
+    return render_template("admin_managers.html", view='admin')
+
+@admin_views.route('/admin/settings')
+@admin_required
+def settings():
+    return render_template("admin_settings.html", view='admin')

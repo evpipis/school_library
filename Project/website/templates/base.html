@@ -44,7 +44,9 @@
             <a class="nav-item nav-link" id="init_admin_login" href="/admin_login">Admin Login</a>
             {% elif view == 'admin' %}
             <!-- admin subpages -->
-            <a class="nav-item nav-link" id="admin_operatons" href="/admin/operations">Operations</a>
+            <a class="nav-item nav-link" id="admin_libraries" href="/admin/libraries">Libraries</a>
+            <a class="nav-item nav-link" id="admin_managers" href="/admin/managers">Managers</a>
+            <a class="nav-item nav-link" id="admin_settings" href="/admin/settings">Settings</a>
             <a class="nav-item nav-link" id="admin_logout" href="/admin/logout">Logout</a>
             {% elif view == 'lib' %}
             <!-- lib subpages -->
@@ -53,11 +55,18 @@
             <a class="nav-item nav-link" id="lib_sign_up" href="{{'/lib%s/sign_up'%id}}">Sign Up</a>
             {% elif view == 'manager' %}
             <!-- manager subpages -->
-            <a class="nav-item nav-link" id="manager_operations" href="{{'/lib%s/manager/operations'%id}}">Operations</a>
+            <a class="nav-item nav-link" id="manager_books" href="{{'/lib%s/manager/books'%id}}">Books</a>
+            <a class="nav-item nav-link" id="manager_members" href="{{'/lib%s/manager/members'%id}}">Members</a>
+            <a class="nav-item nav-link" id="manager_borrowings" href="{{'/lib%s/manager/borrowings'%id}}">Borrowings</a>
+            <a class="nav-item nav-link" id="manager_reviews" href="{{'/lib%s/manager/reviews'%id}}">Reviews</a>
+            <a class="nav-item nav-link" id="manager_settings" href="{{'/lib%s/manager/settings'%id}}">Settings</a>
             <a class="nav-item nav-link" id="manager_logout" href="{{'/lib%s/manager/logout'%id}}">Logout</a>
             {% elif view == 'member' %}
             <!-- member subpages -->
-            <a class="nav-item nav-link" id="member_operations" href="{{'/lib%s/member/operations'%id}}">Operations</a>
+            <a class="nav-item nav-link" id="member_books" href="{{'/lib%s/member/books'%id}}">Books</a>
+            <a class="nav-item nav-link" id="member_my_borrowings" href="{{'/lib%s/member/my_borrowings'%id}}">My Borrowings</a>
+            <a class="nav-item nav-link" id="member_my_reviews" href="{{'/lib%s/member/my_reviews'%id}}">My Reviews</a>
+            <a class="nav-item nav-link" id="member_settings" href="{{'/lib%s/member/settings'%id}}">Settings</a>
             <a class="nav-item nav-link" id="member_logout" href="{{'/lib%s/member/logout'%id}}">Logout</a>
             {% endif %}
         </div>

@@ -52,8 +52,32 @@ def logout(id):
 ### operations views
 
 @manager_views.route('/lib<id>/manager')
-@manager_views.route('/lib<id>/manager/operations')
+@manager_views.route('/lib<id>/manager/books')
 @library_exists
 @manager_required
-def operations(id):
-    return render_template("manager_operations.html", view='manager', id=id)
+def books(id):
+    return render_template("manager_books.html", view='manager', id=id)
+
+@manager_views.route('/lib<id>/manager/members')
+@library_exists
+@manager_required
+def members(id):
+    return render_template("manager_members.html", view='manager', id=id)
+
+@manager_views.route('/lib<id>/manager/borrowings')
+@library_exists
+@manager_required
+def borrowings(id):
+    return render_template("manager_borrowings.html", view='manager', id=id)
+
+@manager_views.route('/lib<id>/manager/reviews')
+@library_exists
+@manager_required
+def reviews(id):
+    return render_template("manager_reviews.html", view='manager', id=id)
+
+@manager_views.route('/lib<id>/manager/settings')
+@library_exists
+@manager_required
+def settings(id):
+    return render_template("manager_settings.html", view='manager', id=id)
