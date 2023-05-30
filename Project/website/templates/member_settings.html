@@ -3,9 +3,44 @@
 {% block title %} Member Settings {% endblock %}
 
 {% block content %}
-  <h1>
-    This is the lib{{id}}/member/settings page!
-  </h1>
+<form method="POST">
+  <h3 align="center"> Change Password </h3>
 
+  <div class="form-group">
+    <label for="cur_password"> Current password </label>
+    <input
+    type="password"
+    class="form-control"
+    id="cur_password"
+    name="cur_password"
+    placeholder="Enter Current Password"
+    />
+  </div>
+
+  <div class="form-group">
+    <label for="new_password"> New Password </label>
+    <input
+    type="password"
+    class="form-control"
+    id="new_password"
+    name="new_password"
+    placeholder="Enter New Password"
+    />
+  </div>
+
+  <div class="form-group">
+    <label for="rep_password"> New Password (validation) </label>
+    <input
+    type="password"
+    class="form-control"
+    id="rep_password"
+    name="rep_password"
+    placeholder="Enter New Password (again)"
+    />
+  </div>
+
+  <br />
   
+  <button type="submit" class="btn btn-primary">Change Password</button>
+</form>
 {% endblock %}

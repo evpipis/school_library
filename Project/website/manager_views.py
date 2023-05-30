@@ -128,8 +128,44 @@ def borrowings(id):
 def reviews(id):
     return render_template("manager_reviews.html", view='manager', id=id)
 
-@manager_views.route('/lib<id>/manager/settings')
+@manager_views.route('/lib<id>/manager/settings', methods = ['GET', 'POST'])
 @library_exists
 @manager_required
 def settings(id):
+    if request.method == 'POST':
+        # user_id = session['id']
+        cur_password = request.form.get('cur_password')
+        new_password = request.form.get('new_password')
+        rep_password = request.form.get('rep_password')
+        
+        cur = mydb.connection.cursor()
+        cur.execute(f'''
+            SELECT password
+            FROM user
+            WHERE id = {int(session['id'])} AND password = '{cur_password}';
+        ''')
+        record = cur.fetchall()
+        cur.close()
+
+        if not record:
+            flash('Current password is not correct.', category='error')
+        elif new_password != rep_password:
+            flash('New passwords do not match.', category='error')
+        elif new_password == cur_password:
+            flash('New password is the same as current password.', category='error')
+        else:
+            try:
+                cur = mydb.connection.cursor()
+                cur.execute(f'''
+                    UPDATE USER
+                    SET password = '{new_password}'
+                    WHERE id = {int(session['id'])} AND password = '{cur_password}';
+                ''')
+                mydb.connection.commit()
+                cur.close()
+                flash('Password changed successfully.', category='success')
+            except Exception as e:
+                flash(str(e), category='error')
+                print(str(e))
+
     return render_template("manager_settings.html", view='manager', id=id)
