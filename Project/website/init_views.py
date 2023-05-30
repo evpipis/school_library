@@ -36,7 +36,7 @@ def admin_login():
                 WHERE username = '{username}' 
                     AND password = '{password}'
                     AND role = 'admin'
-                    AND is_active = TRUE;
+                    AND isActive = TRUE;
             ''')
             record = cur.fetchall()
             # commit() not needed for SELECTS!
@@ -82,8 +82,8 @@ def school_sign_up():
         else:
             cur = mydb.connection.cursor()
             cur.execute('''
-                INSERT INTO school_unit
-                    (name, address, city, phone, email, principal_name)
+                INSERT INTO schoolUnit
+                    (schoolName, schoolAddress, city, phone, email, principal_name)
                 VALUES
                     (%s, %s, %s, %s, %s, %s); '''
                 ,(name, address, city, phone, email, principal_name)
@@ -96,6 +96,11 @@ def school_sign_up():
 ### operations views
 
 @init_views.route('/')
-@init_views.route('/index')
+@init_views.route('/index',methods=['GET'])
 def index():
-    return render_template("init_index.html", view='init')
+    cur = mydb.connection.cursor()
+    cur.execute('''
+        SELECT schoolName, id FROM schoolUnit; '''
+    )
+    signed_schools=cur.fetchall()
+    return render_template("init_index.html", view='init',signed_schools = signed_schools);

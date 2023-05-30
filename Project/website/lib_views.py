@@ -12,7 +12,7 @@ def library_exists(f):
         cur = mydb.connection.cursor()
         cur.execute(f'''
             SELECT id
-            FROM school_unit
+            FROM schoolUnit
             WHERE id = {id};
         ''')
         record = cur.fetchall()
@@ -38,7 +38,6 @@ def guest_required(f):
 
 @lib_views.route('/lib<id>/login', methods=['GET', 'POST'])
 @library_exists
-@guest_required
 def login(id):
     if request.method == 'POST':
         username = request.form.get('username')
@@ -56,8 +55,8 @@ def login(id):
                 WHERE username = '{username}' 
                     AND password = '{password}'
                     AND role = '{role}'
-                    AND school_id = {id}
-                    AND is_active = TRUE;
+                    AND schoolId = {id}
+                    AND isActive = TRUE;
             ''')
             record = cur.fetchall()
             # commit() not needed for SELECTS!
@@ -94,8 +93,87 @@ def sign_up(id):
 
 ### operations views
 
-@lib_views.route('/lib<id>')
-@lib_views.route('/lib<id>/index')
+@lib_views.route('/lib<id>',methods=['GET','POST'])
+@lib_views.route('/lib<id>/index',methods=['GET','POST'])
 @library_exists
 def index(id):
-    return render_template("lib_index.html", view='lib', id=id)
+    cur = mydb.connection.cursor()
+    cur.execute(f'''
+    SELECT schoolName 
+    FROM schoolUnit
+    WHERE schoolUnit.id = {id} ''')
+    schoolname = cur.fetchone()
+
+    cur.execute(f'''
+    SELECT title, numberOfCopies, bookTitle.id
+    FROM BookTitle INNER JOIN BookCopy 
+    ON BookTitle.id = BookCopy.BookTitleId 
+    WHERE BookCopy.schoolUnitId = {id} ''')
+    lib_books = cur.fetchall()
+
+    if request.method=='POST':
+        cur = mydb.connection.cursor()
+        cur.execute(f'''
+        SELECT schoolName 
+        FROM schoolUnit
+        WHERE schoolUnit.id = {id} ''')
+        schoolname = cur.fetchone()
+
+        filter = request.form.get('filter')
+        keyword = request.form.get('search_book')
+        print(filter)
+        print(keyword)
+
+        if (filter == 'title'):
+                cur.execute (f'''
+                CALL filter_title({id}, '{keyword}')''')
+        if (filter == 'category'):
+                cur.execute(f'''
+                CALL filter_category ({id} , '{keyword}') ''')
+        if (filter == 'author'):
+                cur.execute(f'''
+                CALL filter_author ({id} , '{keyword}') ''')
+
+        selected_books = cur.fetchall()
+        print(selected_books)
+        if (selected_books!= ()):
+            cur.close()
+            return render_template("lib_index.html", view='lib', id=id, schoolname = schoolname[0], lib_books = selected_books)
+        else:
+            flash('Books not Found!', category='error')
+            
+    return render_template("lib_index.html", view='lib', id=id, schoolname = schoolname[0], lib_books = lib_books)
+
+
+@lib_views.route('/lib<id>/book<bookid>',methods=['GET',"POST"])
+def preview(id, bookid):
+    cur = mydb.connection.cursor()
+
+    cur.execute(f'''SELECT title 
+    FROM bookTitle WHERE bookTitle.id = {bookid}''')
+    title = cur.fetchone()
+
+    cur.execute(f'''SELECT isbn 
+    FROM bookTitle WHERE bookTitle.id = {bookid}''')
+    isbn = cur.fetchone()
+
+    cur.execute(f'''SELECT authorName
+    FROM author INNER JOIN bookAuthors
+    ON author.id = bookAuthors.authorId
+    WHERE bookAuthors.bookTitleId = {bookid}''' )
+    authors = [row[0] for row in cur.fetchall()]
+
+    cur.execute(f'''SELECT category
+    FROM categories INNER JOIN bookCategories
+    ON categories.id =  bookCategories.bookCategoryId
+    WHERE bookCategories.bookTitleId = {bookid}''' )
+    categories = [row[0] for row in cur.fetchall()]
+    print(categories)
+
+    cur.execute(f''' SELECT summary 
+    FROM bookTitle WHERE bookTitle.id = {bookid}''')
+    summary = [row[0] for row in cur.fetchall()]
+    
+
+    cur.close()
+    return render_template("book_preview.html", view='lib',id = id, bookid=bookid ,title = title[0], isbn = isbn[0], authors = authors, categories = categories, summary = summary[0])

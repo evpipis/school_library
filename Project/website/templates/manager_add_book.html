@@ -1,0 +1,141 @@
+{% extends "base.html" %}
+
+{% block title %} Member My Reviews {% endblock %}
+
+{% block content %}
+  <h1>
+    This is the lib{{id}}/member/add_book page!
+  </h1>
+
+  {% if exists %}
+  <form method="POST">
+    <h3 align="center">Add a new book in your library</h3>
+    
+    <!-- change type to more specific types -->
+    <div class="form-group">
+      <label for="title"> Book Title </label>
+      <input
+        type="text"
+        class="form-control"
+        id="title"
+        name="title"
+        placeholder="Enter Book Title"
+      />
+    </div>
+
+    <div class="form-group">
+        <label for="title"> Number Of Copies </label>
+        <input
+          type="text"
+          class="form-control"
+          id="num_of_copies"
+          name="num_of_copies"
+          placeholder="Enter number of Copies"
+        />
+      </div>
+
+    <br />
+    
+    <button type="submit" class="btn btn-primary">Add new book</button>
+  </form>
+
+    {% else %}
+    <form method="POST">
+    <h3 align="center">Specify All Book Information below</h3>
+    <div class="form-group">
+        <label for="title"> Book Title </label>
+        <input
+          type="text"
+          class="form-control"
+          id="title"
+          name="title"
+          placeholder="Enter Book Title"
+        />
+      </div>
+
+    <div class="form-group">
+      <label for="isbn"> ISBN </label>
+      <input
+        type="text"
+        class="form-control"
+        id="isbn"
+        name="isbn"
+        placeholder="Enter ISBN"
+      />
+    </div>
+  
+    <div class="form-group">
+      <label for="author"> Authors </label>
+      <input
+        type="text"
+        class="form-control"
+        id="authors"
+        name="authors"
+        placeholder="Enter Author Names: (eg. Author1,Author2)"
+      /> 
+    </div>
+  
+    <div class="form-group">
+      <label for="categories"> Categories </label>
+      <input
+        type="text"
+        class="form-control"
+        id="category"
+        name="category"
+        placeholder="Enter related categories (eg. category1, category2)"
+      />
+    </div>
+  
+    <div class="form-group">
+      <label for="publisher"> Publisher </label>
+      <input
+        type="text"
+        class="form-control"
+        id="publisher"
+        name="publisher"
+        placeholder="Enter Publisher Full Name"
+      />
+    </div>
+    
+    <div class="form-group">
+      <label for="num_of_pages"> Number of Pages </label>
+      <input
+        type="text"
+        class="form-control"
+        id="num_of_pages"
+        name="num_of_pages"
+        placeholder="Enter number of pages"
+      />
+    </div>
+    
+     <div class="form-group">
+      <label for="keywords">Keywords</label>
+      <input
+        type="text"
+        class="form-control"
+        id="keywords"
+        name="keywords"
+        placeholder="Enter book keywords eg. (keyword1, keyword2)"
+      />
+    </div>
+    
+    <div class="form-group">
+      <label for="image">Book Image</label>
+      <input
+        type="text"
+        class="form-control"
+        id="image"
+        name="image"
+        placeholder="Enter an active image link"
+      />
+    </div>
+  
+    <br />
+    
+    <button type="submit" class="btn btn-primary">Add new book</button>
+  </form>
+
+  {% endif %}
+
+  
+{% endblock %}
