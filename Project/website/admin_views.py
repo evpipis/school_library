@@ -1,6 +1,7 @@
-from flask import Blueprint, render_template, request, flash, redirect, url_for, session
+from flask import Blueprint, render_template, request, flash, redirect, url_for, session, jsonify
 from functools import wraps
 from . import mydb
+import json
 
 admin_views = Blueprint('admin_views', __name__)
 
@@ -84,6 +85,8 @@ def libraries():
                            , inactive_schools=inactive_schools
                            , active_schools=active_schools)
 
+### managers views
+
 @admin_views.route('/admin/managers', methods=['GET', 'POST'])
 @admin_required
 def managers():
@@ -152,7 +155,50 @@ def managers():
                            , inactive_managers=inactive_managers
                            , active_managers=active_managers)
 
-@admin_views.route('/admin/settings', methods = ['GET', 'POST'])
+@admin_views.route('/admin/managers/switch_activation', methods=['POST'])
+@admin_required
+def switch_activation():
+    record = json.loads(request.data)
+    manager_id = record['manager_id']
+    try:
+        cur = mydb.connection.cursor()
+        cur.execute(f'''
+            UPDATE user
+            SET is_active = NOT is_active
+            WHERE id = {int(manager_id)};
+        ''')
+        mydb.connection.commit()
+        cur.close()
+        flash('Activation status changed successfully.', category='success')
+    except Exception as e:
+        flash(str(e), category='error')
+        print(str(e))
+
+    return jsonify({})
+
+@admin_views.route('/admin/managers/delete_user', methods=['POST'])
+@admin_required
+def delete_user():
+    record = json.loads(request.data)
+    manager_id = record['manager_id']
+    try:
+        cur = mydb.connection.cursor()
+        cur.execute(f'''
+            DELETE FROM user
+            WHERE id = {int(manager_id)}; 
+        ''')
+        mydb.connection.commit()
+        cur.close()
+        flash('User deleted successfully.', category='success')
+    except Exception as e:
+        flash(str(e), category='error')
+        print(str(e))
+
+    return jsonify({})
+
+### settings views
+
+@admin_views.route('/admin/settings')
 @admin_required
 def settings():
     cur = mydb.connection.cursor()
@@ -172,7 +218,6 @@ def settings():
 def change_info():
     name = request.form.get('name')
     birth_date = request.form.get('birth_date')
-    print(birth_date)
     try:
         cur = mydb.connection.cursor()
         cur.execute(f'''
@@ -192,7 +237,6 @@ def change_info():
 @admin_views.route('/admin/settings/change_password', methods = ['POST'])
 @admin_required
 def change_password():
-    # user_id = session['id']
     cur_password = request.form.get('cur_password')
     new_password = request.form.get('new_password')
     rep_password = request.form.get('rep_password')

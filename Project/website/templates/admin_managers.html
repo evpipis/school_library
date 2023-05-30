@@ -84,13 +84,17 @@
   {% for manager in inactive_managers %}
   <li class="list-group-item">
     {{manager.username}}
-    <button type="button" class="close" onclick="location.href='/admin/user{{manager.id}}';">
-      <!-- "hrefFunction({{ 'manager.id' }})" -->
-      <span aria-hidden="true">edit</span>
+    <!-- {{'onclick="switchActivation(%s)"'%manager.id}} -->
+    <button type="button" class="close" onclick="deleteUser({{manager.id}})">
+      <span aria-hidden="true">delete</span>
+    </button>
+    <button type="button" class="close" onclick="switchActivation({{manager.id}})">
+      <span aria-hidden="true">activate&nbsp&nbsp</span>
     </button>
   </li>
   {% endfor %}
 </ul>
+
 
 <!-- ACTIVE MANAGERS -->
 <ul class="list-group list-group-flush" id="admin_active_members">
@@ -98,22 +102,35 @@
   {% for manager in active_managers %}
   <li class="list-group-item">
     {{manager.username}}
-    <button type="button" class="close" onclick="location.href='/admin/user{{manager.id}}';">
-      <span aria-hidden="true">edit</span>
+    {{manager.username}}
+    <button type="button" class="close" onclick="deleteUser({{manager.id}})">
+      <span aria-hidden="true">delete</span>
+    </button>
+    <button type="button" class="close" onclick="switchActivation({{manager.id}})">
+      <span aria-hidden="true">diactivate&nbsp&nbsp</span>
     </button>
   </li>
   {% endfor %}
 </ul>
 
-<!-- <script type="text/javascript">
-function deleteNote(noteId) {
-    fetch("/delete-note", {
+<script type="text/javascript">
+function switchActivation(manager_id) {
+    fetch("/admin/managers/switch_activation", {
         method: "POST",
-        body: JSON.stringify({ noteId: noteId }),
+        body: JSON.stringify({ manager_id: manager_id }),
     }).then((_res) => {
-        window.location.href = "/";
+        window.location.href = "/admin/managers";
     });
 }
-</script> -->
+
+function deleteUser(manager_id) {
+    fetch("/admin/managers/delete_user", {
+        method: "POST",
+        body: JSON.stringify({ manager_id: manager_id }),
+    }).then((_res) => {
+        window.location.href = "/admin/managers";
+    });
+}
+</script>
 
 {% endblock %}
