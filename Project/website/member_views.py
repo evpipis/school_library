@@ -12,7 +12,7 @@ def library_exists(f):
         cur = mydb.connection.cursor()
         cur.execute(f'''
             SELECT id
-            FROM school_unit
+            FROM schoolUnit
             WHERE id = {id};
         ''')
         record = cur.fetchall()
