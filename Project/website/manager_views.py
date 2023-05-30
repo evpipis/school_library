@@ -58,11 +58,63 @@ def logout(id):
 def books(id):
     return render_template("manager_books.html", view='manager', id=id)
 
-@manager_views.route('/lib<id>/manager/members')
+@manager_views.route('/lib<id>/manager/members', methods = ['GET', 'POST'])
 @library_exists
 @manager_required
 def members(id):
-    return render_template("manager_members.html", view='manager', id=id)
+    if request.method == 'POST':
+        username = request.form.get('username')
+        password = request.form.get('password')
+        password2 = request.form.get('password2')
+        role = request.form.get('role')
+        # school_id = id
+        
+        if password != password2:
+            flash('Passwords do not match.', category='error')
+        else:
+            try:
+                cur = mydb.connection.cursor()
+                cur.execute(f'''
+                    INSERT INTO user
+                        (username, password, role, school_id, is_active)
+                    VALUES
+                        ('{username}', '{password}', '{role}', {int(id)}, TRUE);
+                ''')
+                mydb.connection.commit()
+                cur.close()
+                flash('Account created successfully.', category='success')
+            except Exception as e:
+                flash(str(e), category='error')
+                print(str(e))
+
+    cur = mydb.connection.cursor()
+    cur.execute(f'''
+        SELECT username, role
+        FROM user
+        WHERE school_id = {int(id)} AND is_active = FALSE
+            AND (role = 'member-teacher' OR role = 'member-student');
+    ''')
+    inactive_members_rec = cur.fetchall()
+
+    cur.execute(f'''
+        SELECT username, role
+        FROM user
+        WHERE school_id = {int(id)} AND is_active = TRUE
+            AND (role = 'member-teacher' OR role = 'member-student');
+    ''')
+    active_members_rec = cur.fetchall()
+    cur.close()
+
+    inactive_members = list()
+    for row in inactive_members_rec:
+        inactive_members.append({'username': row[0], 'role': row[1]})
+    active_members = list()
+    for row in active_members_rec:
+        active_members.append({'username': row[0], 'role': row[1]})
+    
+    return render_template("manager_members.html", view='manager', id=id
+                           , inactive_members=inactive_members
+                           , active_members=active_members)
 
 @manager_views.route('/lib<id>/manager/borrowings')
 @library_exists
