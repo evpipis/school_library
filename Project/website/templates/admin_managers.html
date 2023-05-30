@@ -3,9 +3,16 @@
 {% block title %} Admin Managers {% endblock %}
 
 {% block content %}
-  <h1>
+  <h1 align="center">
     This is the admin/managers page! Admin can do any related operations here.
   </h1>
-
+<!-- 
+  <ul class="list-group list-group-flush" id="init_schools">
+    {% for manager in managers %}
+    <li class="list-group-item">
+      <a id=href="{{'init_lib%s'%manager.id}}" href="{{'/lib%s/index'%manager.id}}">{{manager.name}}</a>
+    </li>
+    {% endfor %}
+  </ul> -->
   
 {% endblock %}

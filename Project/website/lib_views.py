@@ -13,7 +13,7 @@ def library_exists(f):
         cur.execute(f'''
             SELECT id
             FROM school_unit
-            WHERE id = {id};
+            WHERE id = {id} AND is_active = TRUE;
         ''')
         record = cur.fetchall()
         cur.close()
@@ -44,9 +44,6 @@ def login(id):
         username = request.form.get('username')
         password = request.form.get('password')
         role = request.form.get('role')
-        print(username)
-        print(password)
-        print(role)
 
         try:
             cur = mydb.connection.cursor()

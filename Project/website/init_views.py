@@ -48,7 +48,7 @@ def admin_login():
                 session['id'] = record[0][0]
                 session['username'] = record[0][1]
                 session['role'] = record[0][3]
-                session['shool_id'] = record[0][4]
+                session['school_id'] = record[0][4]
                 # if not active they should not login!!!
                 flash('Sucessful login!', category='success')
                 print(session)
@@ -83,9 +83,9 @@ def school_sign_up():
             cur = mydb.connection.cursor()
             cur.execute('''
                 INSERT INTO school_unit
-                    (name, address, city, phone, email, principal_name)
+                    (name, address, city, phone, email, principal_name, is_active)
                 VALUES
-                    (%s, %s, %s, %s, %s, %s); '''
+                    (%s, %s, %s, %s, %s, %s, FALSE); '''
                 ,(name, address, city, phone, email, principal_name)
             )
             mydb.connection.commit()
@@ -98,4 +98,17 @@ def school_sign_up():
 @init_views.route('/')
 @init_views.route('/index')
 def index():
-    return render_template("init_index.html", view='init')
+    # only add is_active schools here
+    cur = mydb.connection.cursor()
+    cur.execute(f'''
+        SELECT id, name
+        FROM school_unit
+        WHERE is_active = TRUE;
+    ''')
+    record = cur.fetchall()
+    cur.close()
+
+    schools = list()
+    for row in record:
+        schools.append({'id': row[0], 'name': row[1]})
+    return render_template("init_index.html", view='init', schools=schools)

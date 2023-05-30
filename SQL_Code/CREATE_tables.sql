@@ -12,10 +12,10 @@ CREATE TABLE school_unit
 	city VARCHAR(50),
 	phone CHAR(10),
 	email VARCHAR(50) UNIQUE, 
-	principal_name VARCHAR(50)
+	principal_name VARCHAR(50),
     -- manager_name VARCHAR(60) -- this should be a list of names actually!
 	-- schoolLibAdminId INT, 
-	-- PRIMARY KEY(id)
+    is_active BOOL NOT NULL
 );
 
 -- assumptions:
@@ -35,5 +35,3 @@ CREATE TABLE user
 		FOREIGN KEY(school_id) REFERENCES school_unit(id),
     is_active BOOL NOT NULL
 );
-
-

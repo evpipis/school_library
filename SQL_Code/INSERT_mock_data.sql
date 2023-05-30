@@ -1,10 +1,11 @@
 USE SchoolLibrary;
 
 INSERT INTO school_unit
-	(name, address, city, phone, email, principal_name)
+	(name, address, city, phone, email, principal_name, is_active)
 VALUES
-	('Evangeliki Model High School', 'Lesvou 4', 'Nea Smyrni', '2109316748', NULL, 'Christos Fanidis'),
-    ('Leontios High School', 'Themistokli Sofouli 2', 'Nea Smyrni', '2109418011', 'l_leonin@leonteios.gr', NULL)
+	('Evangeliki Model High School', 'Lesvou 4', 'Nea Smyrni', '2109316748', NULL, 'Christos Fanidis', TRUE),
+    ('Leontios High School', 'Themistokli Sofouli 2', 'Nea Smyrni', '2109418011', 'l_leonin@leonteios.gr', NULL, TRUE),
+    ('The Great High School', 'the great address', 'the great city', '490445', 'thegreat@mail.com', 'Principal The Great', FALSE)
 ;
 
 INSERT INTO user
@@ -20,4 +21,3 @@ VALUES
 	('member-student2', 'member-student2', 'member-student', 2, TRUE),
 	('member-student3', 'member-student3', 'member-student', 1, FALSE)
 ;
-

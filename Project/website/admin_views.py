@@ -30,11 +30,59 @@ def logout():
 
 ### operations views
 
-@admin_views.route('/admin')
-@admin_views.route('/admin/libraries')
+@admin_views.route('/admin', methods=['GET', 'POST'])
+@admin_views.route('/admin/libraries', methods=['GET', 'POST'])
 @admin_required
 def libraries():
-    return render_template("admin_libraries.html", view='admin')
+    if request.method == 'POST':
+        name = request.form.get('name')
+        address = request.form.get('address')
+        city = request.form.get('city')
+        phone = request.form.get('phone')
+        email = request.form.get('email')
+        principal_name = request.form.get('principal_name')
+
+        if name == "":
+            flash('School name should not be empty', category='error')
+        else:
+            cur = mydb.connection.cursor()
+            cur.execute('''
+                INSERT INTO school_unit
+                    (name, address, city, phone, email, principal_name, is_active)
+                VALUES
+                    (%s, %s, %s, %s, %s, %s, TRUE); '''
+                ,(name, address, city, phone, email, principal_name)
+            )
+            mydb.connection.commit()
+            cur.close()
+            flash('School created successfully.', category='success')
+
+    cur = mydb.connection.cursor()
+    cur.execute(f'''
+        SELECT id, name
+        FROM school_unit
+        WHERE is_active = FALSE;
+    ''')
+    inactive_record = cur.fetchall()
+
+    cur.execute(f'''
+        SELECT id, name
+        FROM school_unit
+        WHERE is_active = TRUE;
+    ''')
+    active_record = cur.fetchall()
+    cur.close()
+
+    inactive_schools = list()
+    for row in inactive_record:
+        inactive_schools.append({'id': row[0], 'name': row[1]})
+    active_schools = list()
+    for row in active_record:
+        active_schools.append({'id': row[0], 'name': row[1]})
+    
+    return render_template("admin_libraries.html", view='admin'
+                           , inactive_schools=inactive_schools
+                           , active_schools=active_schools)
 
 @admin_views.route('/admin/managers')
 @admin_required

@@ -14,7 +14,7 @@ def library_exists(f):
         cur.execute(f'''
             SELECT id
             FROM school_unit
-            WHERE id = {id};
+            WHERE id = {id} AND is_active = TRUE;
         ''')
         record = cur.fetchall()
         cur.close()
