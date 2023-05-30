@@ -126,14 +126,14 @@ def managers():
     schools_rec = cur.fetchall()
 
     cur.execute(f'''
-        SELECT id, username
+        SELECT id, username, school_id
         FROM user
         WHERE role = 'manager' AND is_active = FALSE;
     ''')
     inactive_managers_rec = cur.fetchall()
 
     cur.execute(f'''
-        SELECT id, username
+        SELECT id, username, school_id
         FROM user
         WHERE role = 'manager' AND is_active = TRUE;
     ''')
@@ -145,10 +145,10 @@ def managers():
         schools.append({'id': row[0], 'name': row[1]})
     inactive_managers = list()
     for row in inactive_managers_rec:
-        inactive_managers.append({'id': row[0], 'username': row[1]})
+        inactive_managers.append({'id': row[0], 'username': row[1], 'school_id': row[2]})
     active_managers = list()
     for row in active_managers_rec:
-        active_managers.append({'id': row[0], 'username': row[1]})
+        active_managers.append({'id': row[0], 'username': row[1], 'school_id': row[2]})
     
     return render_template("admin_managers.html", view='admin'
                            , schools=schools
@@ -272,8 +272,3 @@ def change_password():
             print(str(e))
 
     return redirect(url_for('admin_views.settings'))
-
-# @admin_views.route('/admin/user<user_id>', methods = ['GET', 'POST'])
-# @admin_required
-# def user(user_id):
-#     return render_template("admin_user.html", view='admin')

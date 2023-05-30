@@ -83,13 +83,9 @@
   <h3 align="center">Inactive Managers</h3>
   {% for manager in inactive_managers %}
   <li class="list-group-item">
-    {{manager.username}}
-    <!-- {{'onclick="switchActivation(%s)"'%manager.id}} -->
+    {{manager.username}} (school_id: {{manager.school_id}})
     <button type="button" class="close" onclick="deleteUser({{manager.id}})">
       <span aria-hidden="true">delete</span>
-    </button>
-    <button type="button" class="close" onclick="switchActivation({{manager.id}})">
-      <span aria-hidden="true">activate&nbsp&nbsp</span>
     </button>
   </li>
   {% endfor %}
@@ -101,8 +97,7 @@
   <h3 align="center">Active Managers</h3>
   {% for manager in active_managers %}
   <li class="list-group-item">
-    {{manager.username}}
-    {{manager.username}}
+    {{manager.username}} (school_id: {{manager.school_id}})
     <button type="button" class="close" onclick="deleteUser({{manager.id}})">
       <span aria-hidden="true">delete</span>
     </button>

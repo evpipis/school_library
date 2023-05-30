@@ -83,8 +83,11 @@
   {% for member in inactive_members %}
   <li class="list-group-item">
     {{member.username}} ({{member.role}})
-    <button type="button" class="close">
-      <span aria-hidden="true">edit</span>
+    <button type="button" class="close" onclick="deleteUser({{member.id}})">
+      <span aria-hidden="true">delete</span>
+    </button>
+    <button type="button" class="close" onclick="switchActivation({{member.id}})">
+      <span aria-hidden="true">activate&nbsp&nbsp</span>
     </button>
   </li>
   {% endfor %}
@@ -96,11 +99,37 @@
   {% for member in active_members %}
   <li class="list-group-item">
     {{member.username}} ({{member.role}})
-    <button type="button" class="close">
-      <span aria-hidden="true">edit</span>
+    <button type="button" class="close" onclick="deleteUser({{member.id}})">
+      <span aria-hidden="true">delete</span>
+    </button>
+    <button type="button" class="close" onclick="switchActivation({{member.id}})">
+      <span aria-hidden="true">diactivate&nbsp&nbsp</span>
+    </button>
+    <button type="button" class="close" onclick="location.href='/lib{{id}}/manager/members/card{{member.id}}';">
+      <span aria-hidden="true">card&nbsp&nbsp</span>
     </button>
   </li>
   {% endfor %}
 </ul>
+
+<script type="text/javascript">
+  function switchActivation(member_id) {
+      fetch("/lib{{id}}/manager/members/switch_activation", {
+          method: "POST",
+          body: JSON.stringify({ member_id: member_id }),
+      }).then((_res) => {
+          window.location.href = "/lib{{id}}/manager/members";
+      });
+  }
+  
+  function deleteUser(member_id) {
+      fetch("/lib{{id}}/manager/members/delete_user", {
+          method: "POST",
+          body: JSON.stringify({ member_id: member_id }),
+      }).then((_res) => {
+          window.location.href = "/lib{{id}}/manager/members";
+      });
+  }
+  </script>
 
 {% endblock %}

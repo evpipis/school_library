@@ -1,6 +1,7 @@
-from flask import Blueprint, render_template, request, flash, redirect, url_for, session
+from flask import Blueprint, render_template, request, flash, redirect, url_for, session, jsonify
 from functools import wraps
 from . import mydb
+import json
 
 manager_views = Blueprint('manager_views', __name__)
 
@@ -9,7 +10,6 @@ manager_views = Blueprint('manager_views', __name__)
 def library_exists(f):
     @wraps(f)
     def decorated_function(id, *args, **kwargs):
-        print(f"library_exists {id}")
         cur = mydb.connection.cursor()
         cur.execute(f'''
             SELECT id
@@ -28,7 +28,6 @@ def library_exists(f):
 def manager_required(f):
     @wraps(f)
     def decorated_function(id, *args, **kwargs):
-        print(f"manager_required {id}")
         # if manager cookies
         if session.get('school_id') == int(id) and session.get('role') == 'manager':
             return f(id, *args, **kwargs)
@@ -49,7 +48,7 @@ def logout(id):
     
     return redirect(url_for('lib_views.login', id=id))
 
-### operations views
+### books views
 
 @manager_views.route('/lib<id>/manager')
 @manager_views.route('/lib<id>/manager/books')
@@ -57,6 +56,8 @@ def logout(id):
 @manager_required
 def books(id):
     return render_template("manager_books.html", view='manager', id=id)
+
+### members views
 
 @manager_views.route('/lib<id>/manager/members', methods = ['GET', 'POST'])
 @library_exists
@@ -91,7 +92,7 @@ def members(id):
 
     cur = mydb.connection.cursor()
     cur.execute(f'''
-        SELECT username, role
+        SELECT username, role, id
         FROM user
         WHERE school_id = {int(id)} AND is_active = FALSE
             AND (role = 'member-teacher' OR role = 'member-student');
@@ -99,7 +100,7 @@ def members(id):
     inactive_members_rec = cur.fetchall()
 
     cur.execute(f'''
-        SELECT username, role
+        SELECT username, role, id
         FROM user
         WHERE school_id = {int(id)} AND is_active = TRUE
             AND (role = 'member-teacher' OR role = 'member-student');
@@ -109,14 +110,76 @@ def members(id):
 
     inactive_members = list()
     for row in inactive_members_rec:
-        inactive_members.append({'username': row[0], 'role': row[1]})
+        inactive_members.append({'username': row[0], 'role': row[1], 'id': row[2]})
     active_members = list()
     for row in active_members_rec:
-        active_members.append({'username': row[0], 'role': row[1]})
-    
+        active_members.append({'username': row[0], 'role': row[1], 'id': row[2]})
+   
     return render_template("manager_members.html", view='manager', id=id
                            , inactive_members=inactive_members
                            , active_members=active_members)
+
+@manager_views.route('/lib<id>/manager/members/card<user_id>')
+@library_exists
+@manager_required
+def print_card(id, user_id):
+    cur = mydb.connection.cursor()
+    cur.execute(f'''
+        SELECT id, username, role, school_id, name, birth_date
+        FROM user
+        WHERE id = {int(user_id)};
+    ''')
+    user_rec = cur.fetchall()[0]
+    cur.close()
+
+    user = {'id': user_rec[0], 'username': user_rec[1], 'role': user_rec[2], 'school_id': user_rec[3], 'name': user_rec[4], 'birth_date': user_rec[5]}
+    return render_template("manager_members_card.html", view='manager', id=id, user=user)
+
+@manager_views.route('/lib<id>/manager/members/switch_activation', methods=['POST'])
+@library_exists
+@manager_required
+def switch_activation(id):
+    record = json.loads(request.data)
+    member_id = record['member_id']
+    try:
+        cur = mydb.connection.cursor()
+        cur.execute(f'''
+            UPDATE user
+            SET is_active = NOT is_active
+            WHERE id = {int(member_id)};
+        ''')
+        mydb.connection.commit()
+        cur.close()
+        flash('Activation status changed successfully.', category='success')
+    except Exception as e:
+        flash(str(e), category='error')
+        print(str(e))
+
+    return jsonify({})
+
+@manager_views.route('/lib<id>/manager/members/delete_user', methods=['POST'])
+@library_exists
+@manager_required
+def delete_user(id):
+    print("hellooo")
+    record = json.loads(request.data)
+    member_id = record['member_id']
+    try:
+        cur = mydb.connection.cursor()
+        cur.execute(f'''
+            DELETE FROM user
+            WHERE id = {int(member_id)}; 
+        ''')
+        mydb.connection.commit()
+        cur.close()
+        flash('User deleted successfully.', category='success')
+    except Exception as e:
+        flash(str(e), category='error')
+        print(str(e))
+
+    return jsonify({})
+
+### borrowings views
 
 @manager_views.route('/lib<id>/manager/borrowings')
 @library_exists
