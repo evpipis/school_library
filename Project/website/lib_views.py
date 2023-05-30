@@ -87,6 +87,32 @@ def login(id):
 @library_exists
 @guest_required
 def sign_up(id):
+    if request.method == 'POST':
+        username = request.form.get('username')
+        password = request.form.get('password')
+        password2 = request.form.get('password2')
+        role = request.form.get('role')
+        # school_id = id
+
+        if password != password2:
+            flash('Passwords do not match.', category='error')
+        else:
+            # all the error messages generated my MySQL
+            try:
+                cur = mydb.connection.cursor()
+                cur.execute('''
+                    INSERT INTO user
+                        (username, password, role, school_id, is_active)
+                    VALUES
+                        (%s, %s, %s, %s, FALSE); '''
+                    ,(username, password, role, id)
+                )
+                mydb.connection.commit()
+                cur.close()
+                flash('Account creation requested successfully.', category='success')
+            except Exception as e:
+                flash(str(e), category='error')
+                print(str(e))
     return render_template("lib_sign_up.html", view='lib', id=id)
 
 ### operations views

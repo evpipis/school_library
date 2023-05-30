@@ -3,16 +3,83 @@
 {% block title %} Admin Managers {% endblock %}
 
 {% block content %}
-  <h1 align="center">
-    This is the admin/managers page! Admin can do any related operations here.
-  </h1>
-<!-- 
-  <ul class="list-group list-group-flush" id="init_schools">
-    {% for manager in managers %}
-    <li class="list-group-item">
-      <a id=href="{{'init_lib%s'%manager.id}}" href="{{'/lib%s/index'%manager.id}}">{{manager.name}}</a>
-    </li>
-    {% endfor %}
-  </ul> -->
+
+<!-- MANAGER SIGN UP -->
+<form method="POST">
+  <h3 align="center"> Manager Sign Up for library {{id}} </h3>
+  
+  <div class="form-group">
+    <label for="username"> Username </label>
+    <input
+    type="text"
+    class="form-control"
+    id="username"
+    name="username"
+    placeholder="Enter Username"
+    />
+  </div>
+
+  <div class="form-group">
+    <label for="password"> Password </label>
+    <input
+    type="password"
+    class="form-control"
+    id="password"
+    name="password"
+    placeholder="Enter Password"
+    />
+  </div>
+
+  <div class="form-group">
+    <label for="password2"> Password (validation) </label>
+    <input
+    type="password"
+    class="form-control"
+    id="password2"
+    name="password2"
+    placeholder="Enter Password (again)"
+    />
+  </div>
+
+  <div class="form-group">
+    <label for="school_id"> School Unit </label>
+    <select class="form-control" id="school_id" name="school_id">
+      {% for school in schools %}
+      <option value="{{school.id}}"> "{{school.name}}" </option>
+      {% endfor %}
+    </select>
+  </div>
+
+  <br />
+  
+  <button type="submit" class="btn btn-primary">Sign Up</button>
+</form>
+
+
+<!-- INACTIVE MANAGERS -->
+<ul class="list-group list-group-flush" id="admin_inactive_managers">
+  <h3 align="center">Inactive Managers</h3>
+  {% for manager in inactive_managers %}
+  <li class="list-group-item">
+    {{manager.username}}
+    <button type="button" class="close">
+      <span aria-hidden="true">edit</span>
+    </button>
+  </li>
+  {% endfor %}
+</ul>
+
+<!-- ACTIVE MANAGERS -->
+<ul class="list-group list-group-flush" id="admin_inactive_schools">
+  <h3 align="center">Active Managers</h3>
+  {% for manager in active_managers %}
+  <li class="list-group-item">
+    {{manager.username}}
+    <button type="button" class="close">
+      <span aria-hidden="true">edit</span>
+    </button>
+  </li>
+  {% endfor %}
+</ul>
   
 {% endblock %}

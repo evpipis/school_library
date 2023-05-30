@@ -8,9 +8,10 @@
   </h1>
 
   <ul class="list-group list-group-flush" id="init_schools">
+    <h3 align="center">Available School Libraries</h3>
     {% for school in schools %}
     <li class="list-group-item">
-      <a id=href="{{'init_lib%s'%school.id}}" href="{{'/lib%s/index'%school.id}}">{{school.name}}</a>
+      <a id="{{'init_lib%s'%school.id}}" href="{{'/lib%s/index'%school.id}}">{{school.name}}</a>
     </li>
     {% endfor %}
   </ul>

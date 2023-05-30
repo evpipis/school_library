@@ -90,7 +90,7 @@ def school_sign_up():
             )
             mydb.connection.commit()
             cur.close()
-            flash('School created successfully.', category='success')
+            flash('School creation requested successfully.', category='success')
     return render_template("init_school_sign_up.html", view='init')
 
 ### operations views

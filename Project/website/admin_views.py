@@ -84,10 +84,71 @@ def libraries():
                            , inactive_schools=inactive_schools
                            , active_schools=active_schools)
 
-@admin_views.route('/admin/managers')
+@admin_views.route('/admin/managers', methods=['GET', 'POST'])
 @admin_required
 def managers():
-    return render_template("admin_managers.html", view='admin')
+    if request.method == 'POST':
+        username = request.form.get('username')
+        password = request.form.get('password')
+        password2 = request.form.get('password2')
+        school_id = int(request.form.get('school_id'))
+        # role = 'manager'
+        
+        if password != password2:
+            flash('Passwords do not match.', category='error')
+        else:
+            try:
+                cur = mydb.connection.cursor()
+                cur.execute(f'''
+                    INSERT INTO user
+                        (username, password, role, school_id, is_active)
+                    VALUES
+                        ('{username}', '{password}', 'manager', {school_id}, TRUE);
+                ''')
+                mydb.connection.commit()
+                cur.close()
+                flash('Account created successfully.', category='success')
+            except Exception as e:
+                flash(str(e), category='error')
+                print(str(e))
+
+    cur = mydb.connection.cursor()
+    cur.execute(f'''
+        SELECT id, name
+        FROM school_unit
+        WHERE is_active = TRUE;
+    ''')
+    schools_rec = cur.fetchall()
+
+    cur.execute(f'''
+        SELECT username
+        FROM user
+        WHERE role = 'manager' AND is_active = FALSE;
+    ''')
+    inactive_managers_rec = cur.fetchall()
+
+    cur.execute(f'''
+        SELECT username
+        FROM user
+        WHERE role = 'manager' AND is_active = TRUE;
+    ''')
+    active_managers_rec = cur.fetchall()
+    cur.close()
+
+    schools = list()
+    for row in schools_rec:
+        schools.append({'id': row[0], 'name': row[1]})
+    inactive_managers = list()
+    for row in inactive_managers_rec:
+        inactive_managers.append({'username': row[0]})
+    active_managers = list()
+    for row in active_managers_rec:
+        active_managers.append({'username': row[0]})
+    
+    return render_template("admin_managers.html", view='admin'
+                           , schools=schools
+                           , inactive_managers=inactive_managers
+                           , active_managers=active_managers)
 
 @admin_views.route('/admin/settings')
 @admin_required

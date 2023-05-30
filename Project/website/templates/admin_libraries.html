@@ -88,7 +88,7 @@
   <h3 align="center">Inactive Schools</h3>
   {% for school in inactive_schools %}
   <li class="list-group-item">
-    <a id=href="{{'init_lib%s'%school.id}}" href="{{'/lib%s/index'%school.id}}">{{school.name}}</a>
+    <a id="{{'init_lib%s'%school.id}}" href="{{'/lib%s/index'%school.id}}">{{school.name}}</a>
     <button type="button" class="close">
       <span aria-hidden="true">edit</span>
     </button>
@@ -101,7 +101,7 @@
   <h3 align="center">Active Schools</h3>
   {% for school in active_schools %}
   <li class="list-group-item">
-    <a id=href="{{'init_lib%s'%school.id}}" href="{{'/lib%s/index'%school.id}}">{{school.name}}</a>
+    <a id="{{'init_lib%s'%school.id}}" href="{{'/lib%s/index'%school.id}}">{{school.name}}</a>
     <button type="button" class="close">
       <span aria-hidden="true">edit</span>
     </button>
