@@ -88,6 +88,8 @@ def login(id):
 @guest_required
 def sign_up(id):
     if request.method == 'POST':
+        name = request.form.get('name')
+        birth_date = request.form.get('birth_date')
         username = request.form.get('username')
         password = request.form.get('password')
         password2 = request.form.get('password2')
@@ -100,13 +102,12 @@ def sign_up(id):
             # all the error messages generated my MySQL
             try:
                 cur = mydb.connection.cursor()
-                cur.execute('''
+                cur.execute(f'''
                     INSERT INTO user
-                        (username, password, role, school_id, is_active)
+                        (username, password, role, school_id, is_active, name, birth_date)
                     VALUES
-                        (%s, %s, %s, %s, FALSE); '''
-                    ,(username, password, role, id)
-                )
+                        ('{username}', '{password}', '{role}', {int(id)}, FALSE, '{name}', '{birth_date}');
+                ''')
                 mydb.connection.commit()
                 cur.close()
                 flash('Account creation requested successfully.', category='success')

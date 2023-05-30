@@ -9,6 +9,28 @@
   <h3 align="center"> Manager Sign Up for library {{id}} </h3>
   
   <div class="form-group">
+    <label for="name"> Full Name </label>
+    <input
+    type="text"
+    class="form-control"
+    id="name"
+    name="name"
+    placeholder="Enter Full Name"
+    />
+  </div>
+
+  <div class="form-group">
+    <label for="birth_date"> Birth date </label>
+    <input
+    type="date"
+    class="form-control"
+    id="birth_date"
+    name="birth_date"
+    placeholder="Enter Birth Date"
+    />
+  </div>
+
+  <div class="form-group">
     <label for="username"> Username </label>
     <input
     type="text"
@@ -62,7 +84,8 @@
   {% for manager in inactive_managers %}
   <li class="list-group-item">
     {{manager.username}}
-    <button type="button" class="close">
+    <button type="button" class="close" onclick="location.href='/admin/user{{manager.id}}';">
+      <!-- "hrefFunction({{ 'manager.id' }})" -->
       <span aria-hidden="true">edit</span>
     </button>
   </li>
@@ -75,11 +98,22 @@
   {% for manager in active_managers %}
   <li class="list-group-item">
     {{manager.username}}
-    <button type="button" class="close">
+    <button type="button" class="close" onclick="location.href='/admin/user{{manager.id}}';">
       <span aria-hidden="true">edit</span>
     </button>
   </li>
   {% endfor %}
 </ul>
+
+<!-- <script type="text/javascript">
+function deleteNote(noteId) {
+    fetch("/delete-note", {
+        method: "POST",
+        body: JSON.stringify({ noteId: noteId }),
+    }).then((_res) => {
+        window.location.href = "/";
+    });
+}
+</script> -->
 
 {% endblock %}

@@ -88,6 +88,8 @@ def libraries():
 @admin_required
 def managers():
     if request.method == 'POST':
+        name = request.form.get('name')
+        birth_date = request.form.get('birth_date')
         username = request.form.get('username')
         password = request.form.get('password')
         password2 = request.form.get('password2')
@@ -101,9 +103,9 @@ def managers():
                 cur = mydb.connection.cursor()
                 cur.execute(f'''
                     INSERT INTO user
-                        (username, password, role, school_id, is_active)
+                        (username, password, role, school_id, is_active, name, birth_date)
                     VALUES
-                        ('{username}', '{password}', 'manager', {school_id}, TRUE);
+                        ('{username}', '{password}', 'manager', {school_id}, TRUE, '{name}', '{birth_date}');
                 ''')
                 mydb.connection.commit()
                 cur.close()
@@ -121,14 +123,14 @@ def managers():
     schools_rec = cur.fetchall()
 
     cur.execute(f'''
-        SELECT username
+        SELECT id, username
         FROM user
         WHERE role = 'manager' AND is_active = FALSE;
     ''')
     inactive_managers_rec = cur.fetchall()
 
     cur.execute(f'''
-        SELECT username
+        SELECT id, username
         FROM user
         WHERE role = 'manager' AND is_active = TRUE;
     ''')
@@ -140,10 +142,10 @@ def managers():
         schools.append({'id': row[0], 'name': row[1]})
     inactive_managers = list()
     for row in inactive_managers_rec:
-        inactive_managers.append({'username': row[0]})
+        inactive_managers.append({'id': row[0], 'username': row[1]})
     active_managers = list()
     for row in active_managers_rec:
-        active_managers.append({'username': row[0]})
+        active_managers.append({'id': row[0], 'username': row[1]})
     
     return render_template("admin_managers.html", view='admin'
                            , schools=schools
@@ -153,39 +155,81 @@ def managers():
 @admin_views.route('/admin/settings', methods = ['GET', 'POST'])
 @admin_required
 def settings():
-    if request.method == 'POST':
-        # user_id = session['id']
-        cur_password = request.form.get('cur_password')
-        new_password = request.form.get('new_password')
-        rep_password = request.form.get('rep_password')
-        
+    cur = mydb.connection.cursor()
+    cur.execute(f'''
+        SELECT name, birth_date
+        FROM user
+        WHERE id = {int(session['id'])};
+    ''')
+    user_rec = cur.fetchall()
+    cur.close()
+
+    user = {'name': user_rec[0][0], 'birth_date': str(user_rec[0][1])}
+    return render_template("admin_settings.html", view='admin', user=user)
+
+@admin_views.route('/admin/settings/change_info', methods = ['POST'])
+@admin_required
+def change_info():
+    name = request.form.get('name')
+    birth_date = request.form.get('birth_date')
+    print(birth_date)
+    try:
         cur = mydb.connection.cursor()
         cur.execute(f'''
-            SELECT password
-            FROM user
-            WHERE id = {int(session['id'])} AND password = '{cur_password}';
+            UPDATE USER
+            SET name = '{name}', birth_date = '{birth_date}'
+            WHERE id = {int(session['id'])};
         ''')
-        record = cur.fetchall()
+        mydb.connection.commit()
         cur.close()
+        flash('Info changed successfully.', category='success')
+    except Exception as e:
+        flash(str(e), category='error')
+        print(str(e))
 
-        if not record:
-            flash('Current password is not correct.', category='error')
-        elif new_password != rep_password:
-            flash('New passwords do not match.', category='error')
-        elif new_password == cur_password:
-            flash('New password is the same as current password.', category='error')
-        else:
-            try:
-                cur = mydb.connection.cursor()
-                cur.execute(f'''
-                    UPDATE USER
-                    SET password = '{new_password}'
-                    WHERE id = {int(session['id'])} AND password = '{cur_password}';
-                ''')
-                mydb.connection.commit()
-                cur.close()
-                flash('Password changed successfully.', category='success')
-            except Exception as e:
-                flash(str(e), category='error')
-                print(str(e))
-    return render_template("admin_settings.html", view='admin')
+    return redirect(url_for('admin_views.settings'))
+
+@admin_views.route('/admin/settings/change_password', methods = ['POST'])
+@admin_required
+def change_password():
+    # user_id = session['id']
+    cur_password = request.form.get('cur_password')
+    new_password = request.form.get('new_password')
+    rep_password = request.form.get('rep_password')
+    
+    cur = mydb.connection.cursor()
+    cur.execute(f'''
+        SELECT password
+        FROM user
+        WHERE id = {int(session['id'])} AND password = '{cur_password}';
+    ''')
+    record = cur.fetchall()
+    cur.close()
+
+    if not record:
+        flash('Current password is not correct.', category='error')
+    elif new_password != rep_password:
+        flash('New passwords do not match.', category='error')
+    elif new_password == cur_password:
+        flash('New password is the same as current password.', category='error')
+    else:
+        try:
+            cur = mydb.connection.cursor()
+            cur.execute(f'''
+                UPDATE USER
+                SET password = '{new_password}'
+                WHERE id = {int(session['id'])} AND password = '{cur_password}';
+            ''')
+            mydb.connection.commit()
+            cur.close()
+            flash('Password changed successfully.', category='success')
+        except Exception as e:
+            flash(str(e), category='error')
+            print(str(e))
+
+    return redirect(url_for('admin_views.settings'))
+
+# @admin_views.route('/admin/user<user_id>', methods = ['GET', 'POST'])
+# @admin_required
+# def user(user_id):
+#     return render_template("admin_user.html", view='admin')

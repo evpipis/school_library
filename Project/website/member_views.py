@@ -68,44 +68,84 @@ def my_borrowings(id):
 def my_reviews(id):
     return render_template("member_my_reviews.html", view='member', id=id)
 
-@member_views.route('/lib<id>/member/settings', methods = ['GET', 'POST'])
+### settings views
+
+@member_views.route('/lib<id>/member/settings')
 @library_exists
 @member_required
 def settings(id):
-    if request.method == 'POST':
-        # user_id = session['id']
-        cur_password = request.form.get('cur_password')
-        new_password = request.form.get('new_password')
-        rep_password = request.form.get('rep_password')
-        
+    cur = mydb.connection.cursor()
+    cur.execute(f'''
+        SELECT name, birth_date
+        FROM user
+        WHERE id = {int(session['id'])};
+    ''')
+    user_rec = cur.fetchall()
+    cur.close()
+
+    user = {'name': user_rec[0][0], 'birth_date': str(user_rec[0][1]), 'role': session['role']}
+    return render_template("member_settings.html", view='member', id=id, user=user)
+
+@member_views.route('/lib<id>/member/settings/change_info', methods = ['POST'])
+@library_exists
+@member_required
+def change_info(id):
+    name = request.form.get('name')
+    birth_date = request.form.get('birth_date')
+    print(birth_date)
+    try:
         cur = mydb.connection.cursor()
         cur.execute(f'''
-            SELECT password
-            FROM user
-            WHERE id = {int(session['id'])} AND password = '{cur_password}';
+            UPDATE USER
+            SET name = '{name}', birth_date = '{birth_date}'
+            WHERE id = {int(session['id'])};
         ''')
-        record = cur.fetchall()
+        mydb.connection.commit()
         cur.close()
+        flash('Info changed successfully.', category='success')
+    except Exception as e:
+        flash(str(e), category='error')
+        print(str(e))
 
-        if not record:
-            flash('Current password is not correct.', category='error')
-        elif new_password != rep_password:
-            flash('New passwords do not match.', category='error')
-        elif new_password == cur_password:
-            flash('New password is the same as current password.', category='error')
-        else:
-            try:
-                cur = mydb.connection.cursor()
-                cur.execute(f'''
-                    UPDATE USER
-                    SET password = '{new_password}'
-                    WHERE id = {int(session['id'])} AND password = '{cur_password}';
-                ''')
-                mydb.connection.commit()
-                cur.close()
-                flash('Password changed successfully.', category='success')
-            except Exception as e:
-                flash(str(e), category='error')
-                print(str(e))
+    return redirect(url_for('member_views.settings', id=id))
 
-    return render_template("member_settings.html", view='member', id=id)
+@member_views.route('/lib<id>/member/settings/change_password', methods = ['POST'])
+@library_exists
+@member_required
+def change_password(id):
+    # user_id = session['id']
+    cur_password = request.form.get('cur_password')
+    new_password = request.form.get('new_password')
+    rep_password = request.form.get('rep_password')
+    
+    cur = mydb.connection.cursor()
+    cur.execute(f'''
+        SELECT password
+        FROM user
+        WHERE id = {int(session['id'])} AND password = '{cur_password}';
+    ''')
+    record = cur.fetchall()
+    cur.close()
+
+    if not record:
+        flash('Current password is not correct.', category='error')
+    elif new_password != rep_password:
+        flash('New passwords do not match.', category='error')
+    elif new_password == cur_password:
+        flash('New password is the same as current password.', category='error')
+    else:
+        try:
+            cur = mydb.connection.cursor()
+            cur.execute(f'''
+                UPDATE USER
+                SET password = '{new_password}'
+                WHERE id = {int(session['id'])} AND password = '{cur_password}';
+            ''')
+            mydb.connection.commit()
+            cur.close()
+            flash('Password changed successfully.', category='success')
+        except Exception as e:
+            flash(str(e), category='error')
+            print(str(e))
+
+    return redirect(url_for('member_views.settings', id=id))

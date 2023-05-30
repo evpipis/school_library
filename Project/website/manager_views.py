@@ -63,6 +63,8 @@ def books(id):
 @manager_required
 def members(id):
     if request.method == 'POST':
+        name = request.form.get('name')
+        birth_date = request.form.get('birth_date')
         username = request.form.get('username')
         password = request.form.get('password')
         password2 = request.form.get('password2')
@@ -76,9 +78,9 @@ def members(id):
                 cur = mydb.connection.cursor()
                 cur.execute(f'''
                     INSERT INTO user
-                        (username, password, role, school_id, is_active)
+                        (username, password, role, school_id, is_active, name, birth_date)
                     VALUES
-                        ('{username}', '{password}', '{role}', {int(id)}, TRUE);
+                        ('{username}', '{password}', '{role}', {int(id)}, TRUE, '{name}', '{birth_date}');
                 ''')
                 mydb.connection.commit()
                 cur.close()
@@ -128,44 +130,84 @@ def borrowings(id):
 def reviews(id):
     return render_template("manager_reviews.html", view='manager', id=id)
 
-@manager_views.route('/lib<id>/manager/settings', methods = ['GET', 'POST'])
+### settings views
+
+@manager_views.route('/lib<id>/manager/settings')
 @library_exists
 @manager_required
 def settings(id):
-    if request.method == 'POST':
-        # user_id = session['id']
-        cur_password = request.form.get('cur_password')
-        new_password = request.form.get('new_password')
-        rep_password = request.form.get('rep_password')
-        
+    cur = mydb.connection.cursor()
+    cur.execute(f'''
+        SELECT name, birth_date
+        FROM user
+        WHERE id = {int(session['id'])};
+    ''')
+    user_rec = cur.fetchall()
+    cur.close()
+
+    user = {'name': user_rec[0][0], 'birth_date': str(user_rec[0][1])}
+    return render_template("manager_settings.html", view='manager', id=id, user=user)
+
+@manager_views.route('/lib<id>/manager/settings/change_info', methods = ['POST'])
+@library_exists
+@manager_required
+def change_info(id):
+    name = request.form.get('name')
+    birth_date = request.form.get('birth_date')
+    print(birth_date)
+    try:
         cur = mydb.connection.cursor()
         cur.execute(f'''
-            SELECT password
-            FROM user
-            WHERE id = {int(session['id'])} AND password = '{cur_password}';
+            UPDATE USER
+            SET name = '{name}', birth_date = '{birth_date}'
+            WHERE id = {int(session['id'])};
         ''')
-        record = cur.fetchall()
+        mydb.connection.commit()
         cur.close()
+        flash('Info changed successfully.', category='success')
+    except Exception as e:
+        flash(str(e), category='error')
+        print(str(e))
 
-        if not record:
-            flash('Current password is not correct.', category='error')
-        elif new_password != rep_password:
-            flash('New passwords do not match.', category='error')
-        elif new_password == cur_password:
-            flash('New password is the same as current password.', category='error')
-        else:
-            try:
-                cur = mydb.connection.cursor()
-                cur.execute(f'''
-                    UPDATE USER
-                    SET password = '{new_password}'
-                    WHERE id = {int(session['id'])} AND password = '{cur_password}';
-                ''')
-                mydb.connection.commit()
-                cur.close()
-                flash('Password changed successfully.', category='success')
-            except Exception as e:
-                flash(str(e), category='error')
-                print(str(e))
+    return redirect(url_for('manager_views.settings', id=id))
 
-    return render_template("manager_settings.html", view='manager', id=id)
+@manager_views.route('/lib<id>/manager/settings/change_password', methods = ['POST'])
+@library_exists
+@manager_required
+def change_password(id):
+    # user_id = session['id']
+    cur_password = request.form.get('cur_password')
+    new_password = request.form.get('new_password')
+    rep_password = request.form.get('rep_password')
+    
+    cur = mydb.connection.cursor()
+    cur.execute(f'''
+        SELECT password
+        FROM user
+        WHERE id = {int(session['id'])} AND password = '{cur_password}';
+    ''')
+    record = cur.fetchall()
+    cur.close()
+
+    if not record:
+        flash('Current password is not correct.', category='error')
+    elif new_password != rep_password:
+        flash('New passwords do not match.', category='error')
+    elif new_password == cur_password:
+        flash('New password is the same as current password.', category='error')
+    else:
+        try:
+            cur = mydb.connection.cursor()
+            cur.execute(f'''
+                UPDATE USER
+                SET password = '{new_password}'
+                WHERE id = {int(session['id'])} AND password = '{cur_password}';
+            ''')
+            mydb.connection.commit()
+            cur.close()
+            flash('Password changed successfully.', category='success')
+        except Exception as e:
+            flash(str(e), category='error')
+            print(str(e))
+
+    return redirect(url_for('manager_views.settings', id=id))
