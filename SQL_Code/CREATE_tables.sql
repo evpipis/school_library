@@ -47,7 +47,7 @@ CREATE TABLE book_title
 CREATE TABLE categories
 (
 	id INT AUTO_INCREMENT,
-	PRIMARY KEY(id),
+		PRIMARY KEY(id),
 	category VARCHAR(100) UNIQUE NOT NULL
 );
 

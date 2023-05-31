@@ -47,7 +47,7 @@ def logout(id):
     
     return redirect(url_for('lib_views.login', id=id))
 
-### operations views
+### books views
 
 @member_views.route('/lib<id>/member', methods = ['GET', 'POST'])
 @member_views.route('/lib<id>/member/books', methods = ['GET', 'POST'])
@@ -75,12 +75,22 @@ def books(id):
                 FROM book_title INNER JOIN book_instance ON book_title.id = book_instance.book_id 
                 WHERE book_instance.school_id = {id} AND book_title.title = '{keyword}';
             ''')
-        # if (filter == 'category'):
-        #         cur.execute(f'''
-        #         CALL filter_category ({id} , '{keyword}') ''')
-        # if (filter == 'author'):
-        #         cur.execute(f'''
-        #         CALL filter_author ({id} , '{keyword}') ''')
+        if (filter == 'category'):
+            cur.execute (f'''
+                SELECT BT1.title, BI1.copies, BT1.id
+                FROM book_title AS BT1 INNER JOIN book_instance AS BI1 ON BT1.id = BI1.book_id 
+                INNER JOIN book_categories AS BC ON BC.book_id = BI1.book_id
+                INNER JOIN categories AS C ON C.id = BC.category_id
+                WHERE BI1.school_id = {id} AND C.category = '{keyword}';
+            ''')
+        if (filter == 'author'):
+            cur.execute(f'''
+                SELECT BT1.title, BI1.copies, BT1.id
+                FROM book_title AS BT1 INNER JOIN book_instance AS BI1 ON BT1.id = BI1.book_id 
+                INNER JOIN book_authors AS BA ON BA.book_id = BI1.book_id
+                INNER JOIN authors AS A ON A.id = BA.author_id
+                WHERE BI1.school_id = {id} AND A.author = '{keyword}';
+            ''')
 
         selected_books = cur.fetchall()
         cur.close()
@@ -111,7 +121,9 @@ def books(id):
 
     return render_template("member_books.html", view='member', id=id, schoolname = schoolname[0], lib_books = lib_books)
 
-@member_views.route('/lib<id>/members/book<bookid>',methods=['GET',"POST"])
+### preview views
+
+@member_views.route('/lib<id>/member/book<bookid>',methods=['GET',"POST"])
 @library_exists
 @member_required
 def preview(id, bookid):

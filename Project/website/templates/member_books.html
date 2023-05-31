@@ -3,9 +3,8 @@
 {% block title %} Member Books {% endblock %}
 
 {% block content %}
-<h1>
-  This is the lib{{id}}/member/books page!
-</h1>
+<h1></h1>
+
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
@@ -43,6 +42,7 @@
         </select>
       </div>
 
+      <label for="search_book"> Search keywords </label>
       <div class="form-group">
         <input
         type="text"
@@ -78,7 +78,7 @@
                               
                       
                               <div class="card-footer p-4 pt-0 border-top-0 bg-transparent">
-                                  <div class="text-center"><a class="btn btn-outline-dark mt-auto" href="{{'/lib%s/members/book%s'%(id,bookid)}}">View details</a></div>
+                                  <div class="text-center"><a class="btn btn-outline-dark mt-auto" href="{{'/lib%s/member/book%s'%(id,bookid)}}">View details</a></div>
                               </div>
                             
                              </div>

@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %} Member Book Preview {% endblock %}
+{% block title %} Manager Book Preview {% endblock %}
 
 {% block content %}
 
@@ -49,19 +49,19 @@
               <div class="d-flex">
                   <button class="btn btn-outline-dark flex-shrink-0" type="button">
                       <i class='fa fa-book teal-color'></i>
-                      Reserve Now
+                      Borrow Action
                   </button>
               </div>
               <div class="d-flex">
-                <button class="btn btn-outline-dark flex-shrink-0" onclick="openPopup()" type="button">
-                  <i class="bi bi-star"></i>
-                    Make Review
+                <button class="btn btn-outline-dark flex-shrink-0" type="button">
+                  <i class="fa fa-book teal-color"></i>
+                    Return Action
                 </button>
             
             </div>
           </div>
       </div>
-      <div id="popup" class="popup" style="display: none;">
+      <!-- <div id="popup" class="popup" style="display: none;">
         <h2>Enter your review here!</h2>
         <style>
           /* Styles for the pop-up window */
@@ -104,14 +104,14 @@
           <br><br>
           <input type="submit" value="Submit Review">
         </form>
-      </div>
+      </div> -->
     
-      <script>
+      <!-- <script>
         function openPopup() {
           var popup = document.getElementById("popup");
           popup.style.display = "block";
         }
-      </script>
+      </script> -->
   </div>  
 </section>
 </body>

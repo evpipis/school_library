@@ -50,12 +50,128 @@ def logout(id):
 
 ### books views
 
-@manager_views.route('/lib<id>/manager')
-@manager_views.route('/lib<id>/manager/books')
+@manager_views.route('/lib<id>/manager', methods = ['GET', 'POST'])
+@manager_views.route('/lib<id>/manager/books', methods = ['GET', 'POST'])
+def books(id):
+    if request.method=='POST':
+        print("inside POST request")
+        cur = mydb.connection.cursor()
+        cur.execute(f'''
+            SELECT name 
+            FROM school_unit
+            WHERE id = {id};
+        ''')
+        schoolname = cur.fetchone()
+
+        filter = request.form.get('filter')
+        keyword = request.form.get('search_book')
+        print(filter)
+        print(keyword)
+
+        if (filter == 'title'):
+            cur.execute (f'''
+                SELECT title, copies, book_instance.id
+                FROM book_title INNER JOIN book_instance ON book_title.id = book_instance.book_id 
+                WHERE book_instance.school_id = {id} AND book_title.title = '{keyword}';
+            ''')
+        if (filter == 'category'):
+            cur.execute (f'''
+                SELECT BT1.title, BI1.copies, BT1.id
+                FROM book_title AS BT1 INNER JOIN book_instance AS BI1 ON BT1.id = BI1.book_id 
+                INNER JOIN book_categories AS BC ON BC.book_id = BI1.book_id
+                INNER JOIN categories AS C ON C.id = BC.category_id
+                WHERE BI1.school_id = {id} AND C.category = '{keyword}';
+            ''')
+        if (filter == 'author'):
+            cur.execute(f'''
+                SELECT BT1.title, BI1.copies, BT1.id
+                FROM book_title AS BT1 INNER JOIN book_instance AS BI1 ON BT1.id = BI1.book_id 
+                INNER JOIN book_authors AS BA ON BA.book_id = BI1.book_id
+                INNER JOIN authors AS A ON A.id = BA.author_id
+                WHERE BI1.school_id = {id} AND A.author = '{keyword}';
+            ''')
+
+        selected_books = cur.fetchall()
+        cur.close()
+
+        print("cursor_closed")
+        print(selected_books)
+        if (selected_books!= ()):
+            flash('Books search was successful.')
+            return render_template("manager_books.html", view='manager', id=id, schoolname = schoolname[0], lib_books = selected_books)
+        else:
+            flash('Books not Found.', category='error')
+    
+    cur = mydb.connection.cursor()
+    cur.execute(f'''
+        SELECT name 
+        FROM school_unit
+        WHERE id = {id};
+    ''')
+    schoolname = cur.fetchone()
+
+    cur.execute(f'''
+        SELECT title, copies, book_instance.id
+        FROM book_title INNER JOIN book_instance
+        ON book_title.id = book_instance.book_id
+        WHERE book_instance.school_id = {id};
+    ''')
+    lib_books = cur.fetchall()
+    cur.close()
+    return render_template("manager_books.html", view='manager', id=id, schoolname = schoolname[0], lib_books = lib_books)
+
+### preview views
+
+@manager_views.route('/lib<id>/manager/book<bookid>',methods=['GET',"POST"])
 @library_exists
 @manager_required
-def books(id):
-    return render_template("manager_books.html", view='manager', id=id)
+def preview(id, bookid):
+    cur = mydb.connection.cursor()
+
+    cur.execute(f'''
+        SELECT title 
+        FROM book_title
+        WHERE book_title.id = {bookid};
+    ''')
+    title = cur.fetchone()
+
+    cur.execute(f'''
+        SELECT isbn 
+        FROM book_title
+        WHERE book_title.id = {bookid};
+    ''')
+    isbn = cur.fetchone()
+
+    cur.execute(f'''
+        SELECT author
+        FROM authors INNER JOIN book_authors
+        ON authors.id = book_authors.author_id
+        WHERE book_authors.book_id = {bookid};
+    ''' )
+    authors = [row[0] for row in cur.fetchall()]
+    print(authors)
+
+    cur.execute(f'''
+        SELECT category
+        FROM categories INNER JOIN book_categories
+        ON categories.id = book_categories.category_id
+        WHERE book_categories.book_id = {bookid};
+    ''' )
+    # print(cur.fetchall())
+    categories = [row[0] for row in cur.fetchall()]
+    print(categories)
+
+    cur.execute(f'''
+        SELECT summary 
+        FROM book_title
+        WHERE book_title.id = {bookid};
+    ''')
+    summary = [row[0] for row in cur.fetchall()]
+    
+    cur.close()
+    return render_template("manager_preview.html", view='manager', id=id
+                           , bookid=bookid ,title=title[0], isbn=isbn[0]
+                           , authors=authors, categories=categories, summary=summary[0])
 
 ### members views
 
