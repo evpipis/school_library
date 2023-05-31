@@ -1,11 +1,46 @@
 {% extends "base.html" %}
 
-{% block title %} Member My Borrowings {% endblock %}
+{% block title %} Member My Reviews {% endblock %}
 
 {% block content %}
   <h1>
     This is the lib{{id}}/member/my_borrowings page!
   </h1>
 
+  <style>
+    table {
+        border-collapse: collapse;
+        width: 100%;
+    }
+    th{
+      background-color: #72d372;
+    }
+    th, td {
+        text-align: left;
+        padding: 8px;
+        
+    }
+    tr:nth-child(even){background-color: #f5f5f5}
+    </style>
+   
+      <table class="styled-table">
+        <thead>
+            <tr>
+                <th>Book Title</th>
+                <th>Borrowing Date</th>
+                <th>Return Date</th>
+                <th>Maximum Borrowing Time (return until)</th>
+            </tr>
+        </thead>
+        <tbody>
+          {% for title, borrowing_date, return_date, limit_date in borrow_data %}
+            <tr class="active-row"> 
+                <td>  {{ title }}</td>
+                <td>  {{ borrowing_date }}</td>
+                <td>  {{ return_date }}</td>
+                <td>  {{ limit_date }}</td>
+               {% endfor %}
+        </tbody>
+    </table>  
   
 {% endblock %}

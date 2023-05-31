@@ -173,7 +173,23 @@ def preview(id, bookid):
     cur.execute(f''' SELECT summary 
     FROM bookTitle WHERE bookTitle.id = {bookid}''')
     summary = [row[0] for row in cur.fetchall()]
+
+    if request.method == 'POST':
+         stars = request.form.get('stars')
+         review_text = request.form.get('reviewText')
+
+         cur = mydb.connection.cursor()
+        
+         user_id = session.get('id')
+         approved = not(session.get('role') == 'member-student')
+         print(approved)
     
+         cur.execute('''
+         INSERT INTO review (userId , bookTitleId, opinion, numberOfStars, isApproved)
+         VALUES (%s, %s, %s, %s, %s);''', 
+         (user_id, bookid, review_text, stars, approved) )
+         mydb.connection.commit()
+         flash('Your review was submitted successfully!', category='success')
 
     cur.close()
     return render_template("book_preview.html", view='lib',id = id, bookid=bookid ,title = title[0], isbn = isbn[0], authors = authors, categories = categories, summary = summary[0])

@@ -106,13 +106,30 @@ def books(id):
 @library_exists
 @member_required
 def my_borrowings(id):
-    return render_template("member_my_borrowings.html", view='member', id=id)
+    cur = mydb.connection.cursor()
+    user_id = session.get('id')
+    cur.execute(f'''
+    SELECT bookTitle.title, borrow.borrowingDate, borrow.returnDate, borrow.maxBorrowingTime FROM
+    borrow INNER JOIN bookCopy ON borrow.bookId = bookCopy.id
+    INNER JOIN bookTitle ON bookCopy.bookTitleId = bookTitle.id
+    WHERE borrow.userId = {user_id} ''')
+    borrow_data = cur.fetchall()
+    cur.close()
+    return render_template("member_my_borrowings.html", view='member', id=id, borrow_data = borrow_data)
 
 @member_views.route('/lib<id>/member/my_reviews')
 @library_exists
 @member_required
 def my_reviews(id):
-    return render_template("member_my_reviews.html", view='member', id=id)
+    cur = mydb.connection.cursor()
+    user_id = session.get('id')
+    cur.execute(f'''
+    SELECT bookTitle.title, review.numberOfStars, review.opinion FROM 
+    review INNER JOIN bookTitle ON review.bookTitleId = bookTitle.id
+    WHERE userId = {user_id}''')
+    my_reviews =  cur.fetchall()
+    
+    return render_template("member_my_reviews.html", view='member', id=id, my_reviews = my_reviews)
 
 @member_views.route('/lib<id>/member/settings')
 @library_exists
