@@ -49,12 +49,67 @@ def logout(id):
 
 ### operations views
 
-@member_views.route('/lib<id>/member')
-@member_views.route('/lib<id>/member/books')
+@member_views.route('/lib<id>/member', methods = ['GET', 'POST'])
+@member_views.route('/lib<id>/member/books', methods = ['GET', 'POST'])
 @library_exists
 @member_required
 def books(id):
-    return render_template("member_books.html", view='member', id=id)
+    if request.method=='POST':
+        print("inside POST request")
+        cur = mydb.connection.cursor()
+        cur.execute(f'''
+            SELECT name 
+            FROM school_unit
+            WHERE id = {id};
+        ''')
+        schoolname = cur.fetchone()
+
+        filter = request.form.get('filter')
+        keyword = request.form.get('search_book')
+        print(filter)
+        print(keyword)
+
+        if (filter == 'title'):
+            cur.execute (f'''
+                SELECT title, copies, book_instance.id
+                FROM book_title INNER JOIN book_instance ON book_title.id = book_instance.book_id 
+                WHERE book_instance.school_id = {id} AND book_title.title = '{keyword}';
+            ''')
+        # if (filter == 'category'):
+        #         cur.execute(f'''
+        #         CALL filter_category ({id} , '{keyword}') ''')
+        # if (filter == 'author'):
+        #         cur.execute(f'''
+        #         CALL filter_author ({id} , '{keyword}') ''')
+
+        selected_books = cur.fetchall()
+        cur.close()
+
+        print("cursor_closed")
+        print(selected_books)
+        if (selected_books!= ()):
+            return render_template("member_books.html", view='member', id=id, schoolname = schoolname[0], lib_books = selected_books)
+        else:
+            flash('Books not Found!', category='error')
+    
+    cur = mydb.connection.cursor()
+    cur.execute(f'''
+        SELECT name 
+        FROM school_unit
+        WHERE id = {id};
+    ''')
+    schoolname = cur.fetchone()
+
+    cur.execute(f'''
+        SELECT title, copies, book_instance.id
+        FROM book_title INNER JOIN book_instance
+        ON book_title.id = book_instance.book_id
+        WHERE book_instance.school_id = {id};
+    ''')
+    lib_books = cur.fetchall()
+    cur.close()
+
+    return render_template("member_books.html", view='member', id=id, schoolname = schoolname[0], lib_books = lib_books)
 
 @member_views.route('/lib<id>/member/my_borrowings')
 @library_exists
