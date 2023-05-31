@@ -111,6 +111,59 @@ def books(id):
 
     return render_template("member_books.html", view='member', id=id, schoolname = schoolname[0], lib_books = lib_books)
 
+@member_views.route('/lib<id>/members/book<bookid>',methods=['GET',"POST"])
+@library_exists
+@member_required
+def preview(id, bookid):
+    cur = mydb.connection.cursor()
+
+    cur.execute(f'''
+        SELECT title 
+        FROM book_title
+        WHERE book_title.id = {bookid};
+    ''')
+    title = cur.fetchone()
+
+    cur.execute(f'''
+        SELECT isbn 
+        FROM book_title
+        WHERE book_title.id = {bookid};
+    ''')
+    isbn = cur.fetchone()
+
+    cur.execute(f'''
+        SELECT author
+        FROM authors INNER JOIN book_authors
+        ON authors.id = book_authors.author_id
+        WHERE book_authors.book_id = {bookid};
+    ''' )
+    authors = [row[0] for row in cur.fetchall()]
+    print(authors)
+
+    cur.execute(f'''
+        SELECT category
+        FROM categories INNER JOIN book_categories
+        ON categories.id = book_categories.category_id
+        WHERE book_categories.book_id = {bookid};
+    ''' )
+    # print(cur.fetchall())
+    categories = [row[0] for row in cur.fetchall()]
+    print(categories)
+
+    cur.execute(f'''
+        SELECT summary 
+        FROM book_title
+        WHERE book_title.id = {bookid};
+    ''')
+    summary = [row[0] for row in cur.fetchall()]
+    
+    cur.close()
+    return render_template("member_preview.html", view='member', id=id
+                           , bookid=bookid ,title=title[0], isbn=isbn[0]
+                           , authors=authors, categories=categories, summary=summary[0])
+
+### my_borrowings views
+
 @member_views.route('/lib<id>/member/my_borrowings')
 @library_exists
 @member_required
