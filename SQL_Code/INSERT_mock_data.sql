@@ -21,3 +21,89 @@ VALUES
 	('member-student2', 'member-student2', 'member-student', 2, TRUE, 'Student 2', '2000-01-01'),
 	('member-student3', 'member-student3', 'member-student', 1, FALSE, 'Student 3', '2000-01-01')
 ;
+
+INSERT INTO book_title
+	(title, publisher, isbn, summary, image, lang_id, pages)
+VALUES
+	('Book 1', 'HarperCollins', '397275289-X', 'Ut labore et dolore magna aliqua', 'http://dummyimage.com/104x177.png/ff4444/ffffff', 'gd', 358),
+	('Book 2','HarperCollins', '640431927-6','Consectetur adipiscing elit','http://dummyimage.com/112x239.png/dddddd/000000', 'kw', 123),
+    ('Book 3','Hachette Book Group', '567789573-3', 'Lorem ipsum dolor sit amet','http://dummyimage.com/243x192.png/dddddd/000000', 'bn', 605)
+;
+
+INSERT INTO categories
+	(category)
+VALUES
+	('Augmented Reality'),
+    ('Cooking'),
+    ('Zombies'),
+    ('Alternate History'),
+    ('Werewolves')
+;
+
+INSERT INTO book_categories
+	(book_id, category_id)
+VALUES
+	(1, 2),
+    (1, 4),
+    (2, 1),
+    (2, 2),
+    (2, 3),
+    (3, 2),
+    (3, 5)
+;
+
+INSERT INTO authors
+	(author)
+VALUES
+	('John Smith'),
+    ('Emily Johnson'),
+    ('David Lee'),
+    ('Sarah Davis'),
+    ('Michael Wilson'),
+    ('Amanda Rodriguez')
+;
+
+INSERT INTO book_authors
+	(book_id, author_id)
+VALUES
+	(1, 1),
+    (1, 5),
+    (1, 6),
+    (2, 2),
+    (3, 4),
+    (3, 2),
+    (3, 5)
+;
+
+INSERT INTO keywords
+	(keyword)
+VALUES
+	('mystery'),
+    ('romance'),
+    ('fantasy'),
+    ('sci-fi'),
+    ('biography'),
+    ('travel')
+;
+
+INSERT INTO book_keywords
+	(book_id, keyword_id)
+VALUES
+	(1, 1),
+    (1, 3),
+    (1, 5),
+    (2, 2),
+    (2, 3),
+    (2, 6),
+    (3, 5)
+;
+
+INSERT INTO book_instance
+	(book_id, school_id, copies)
+VALUES
+	(1, 1, 4),
+    (2, 1, 3),
+    (1, 2, 2),
+    (3, 2, 1),
+    (1, 3, 2)
+;
