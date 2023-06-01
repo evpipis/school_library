@@ -180,17 +180,74 @@ def preview(id, bookid):
 @library_exists
 @member_required
 def my_borrowings(id):
-    # cur = mydb.connection.cursor()
-    # user_id = session.get('id')
-    # cur.execute(f'''
-    #     SELECT book_title.title, borrowing.borrow_date, borrow.return_date, borrow.maxBorrowingTime FROM
-    #     borrow INNER JOIN bookCopy ON borrow.bookId = bookCopy.id
-    #     INNER JOIN bookTitle ON bookCopy.bookTitleId = bookTitle.id
-    #     WHERE borrow.userId = {user_id}
-    # ''')
-    # borrow_data = cur.fetchall()
-    # cur.close()
-    return render_template("member_my_borrowings.html", view='member', id=id, borrow_data = (('fsda', 'fsdfd', 'fsd', 'dsf'),))
+    user_id = int(session['id'])
+    user_username = session['username']
+    cur = mydb.connection.cursor()
+    cur.execute(f'''
+        SELECT book_title.title, book_title.isbn, borrowing.borrow_date
+        FROM borrowing
+        INNER JOIN book_title
+        ON borrowing.book_id = book_title.id
+        WHERE borrowing.user_id = {user_id} AND borrowing.status = 'active';
+    ''')
+    active_borrowings_rec = cur.fetchall()
+
+    cur.execute(f'''
+        SELECT book_title.title, book_title.isbn, DATE_ADD(borrowing.borrow_date, INTERVAL 1 WEEK)
+        FROM borrowing
+        INNER JOIN book_title
+        ON borrowing.book_id = book_title.id
+        WHERE borrowing.user_id = {user_id} AND borrowing.status = 'delayed';
+    ''')
+    delayed_borrowings_rec = cur.fetchall()
+
+    cur.execute(f'''
+        SELECT book_title.title, book_title.isbn, borrowing.return_date
+        FROM borrowing
+        INNER JOIN book_title
+        ON borrowing.book_id = book_title.id
+        WHERE borrowing.user_id = {user_id} AND borrowing.status = 'completed';
+    ''')
+    completed_borrowings_rec = cur.fetchall()
+    
+    cur.execute(f'''
+        SELECT book_title.title, book_title.isbn, reservation.reserve_date
+        FROM reservation
+        INNER JOIN book_title
+        ON reservation.book_id = book_title.id
+        WHERE reservation.user_id = {user_id} AND reservation.status = 'active';
+    ''')
+    active_reservations_rec = cur.fetchall()
+
+    cur.execute(f'''
+        SELECT book_title.title, book_title.isbn, reservation.request_date
+        FROM reservation
+        INNER JOIN book_title
+        ON reservation.book_id = book_title.id
+        WHERE reservation.user_id = {user_id} AND reservation.status = 'pending';
+    ''')
+    pending_reservations_rec = cur.fetchall()
+    cur.close()
+
+    active_borrowings = list()
+    for row in active_borrowings_rec:
+        active_borrowings.append({'title': row[0], 'isbn': row[1], 'username': user_username, 'id': user_id, 'date': row[2]})
+    delayed_borrowings = list()
+    for row in delayed_borrowings_rec:
+        delayed_borrowings.append({'title': row[0], 'isbn': row[1], 'username': user_username, 'id': user_id, 'date': row[2]})
+    completed_borrowings = list()
+    for row in completed_borrowings_rec:
+        completed_borrowings.append({'title': row[0], 'isbn': row[1], 'username': user_username, 'id': user_id, 'date': row[2]})
+    active_reservations = list()
+    for row in active_reservations_rec:
+        active_reservations.append({'title': row[0], 'isbn': row[1], 'username': user_username, 'id': user_id, 'date': row[2]})
+    pending_reservations = list()
+    for row in pending_reservations_rec:
+        pending_reservations.append({'title': row[0], 'isbn': row[1], 'username': user_username, 'id': user_id, 'date': row[2]})
+    
+    return render_template("member_my_borrowings.html", view='member', id=id, pending_reservations=pending_reservations
+                           , active_reservations=active_reservations, delayed_borrowings=delayed_borrowings
+                           , active_borrowings=active_borrowings, completed_borrowings=completed_borrowings)
 
 @member_views.route('/lib<id>/member/my_reviews')
 @library_exists
