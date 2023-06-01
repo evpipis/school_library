@@ -277,7 +277,6 @@ def switch_activation(id):
 @library_exists
 @manager_required
 def delete_user(id):
-    print("hellooo")
     record = json.loads(request.data)
     member_id = record['member_id']
     try:
@@ -301,7 +300,88 @@ def delete_user(id):
 @library_exists
 @manager_required
 def borrowings(id):
-    return render_template("manager_borrowings.html", view='manager', id=id)
+    cur = mydb.connection.cursor()
+    cur.execute(f'''
+        SELECT book_title.title, book_title.isbn, user.username, user.id, borrowing.borrow_date
+        FROM borrowing
+        INNER JOIN book_title
+        ON borrowing.book_id = book_title.id
+        INNER JOIN user
+        ON borrowing.user_id = user.id
+        WHERE (user.role = 'member-student' OR user.role = 'member-teacher')
+            AND user.school_id = {id} AND borrowing.status = 'active';
+    ''')
+    active_borrowings_rec = cur.fetchall()
+
+    cur.execute(f'''
+        SELECT book_title.title, book_title.isbn, user.username,
+            user.id, DATE_ADD(borrowing.borrow_date, INTERVAL 1 WEEK)
+        FROM borrowing
+        INNER JOIN book_title
+        ON borrowing.book_id = book_title.id
+        INNER JOIN user
+        ON borrowing.user_id = user.id
+        WHERE (user.role = 'member-student' OR user.role = 'member-teacher')
+            AND user.school_id = {id} AND borrowing.status = 'delayed';
+    ''')
+    delayed_borrowings_rec = cur.fetchall()
+
+    cur.execute(f'''
+        SELECT book_title.title, book_title.isbn, user.username, user.id, borrowing.return_date
+        FROM borrowing
+        INNER JOIN book_title
+        ON borrowing.book_id = book_title.id
+        INNER JOIN user
+        ON borrowing.user_id = user.id
+        WHERE (user.role = 'member-student' OR user.role = 'member-teacher')
+            AND user.school_id = {id} AND borrowing.status = 'completed';
+    ''')
+    completed_borrowings_rec = cur.fetchall()
+    
+    cur.execute(f'''
+        SELECT book_title.title, book_title.isbn, user.username, user.id, reservation.reserve_date
+        FROM reservation
+        INNER JOIN book_title
+        ON reservation.book_id = book_title.id
+        INNER JOIN user
+        ON reservation.user_id = user.id
+        WHERE (user.role = 'member-student' OR user.role = 'member-teacher')
+            AND user.school_id = {id} AND reservation.status = 'active';
+    ''')
+    active_reservations_rec = cur.fetchall()
+
+    cur.execute(f'''
+        SELECT book_title.title, book_title.isbn, user.username, user.id, reservation.request_date
+        FROM reservation
+        INNER JOIN book_title
+        ON reservation.book_id = book_title.id
+        INNER JOIN user
+        ON reservation.user_id = user.id
+        WHERE (user.role = 'member-student' OR user.role = 'member-teacher')
+            AND user.school_id = {id} AND reservation.status = 'pending';
+    ''')
+    pending_reservations_rec = cur.fetchall()
+    cur.close()
+
+    active_borrowings = list()
+    for row in active_borrowings_rec:
+        active_borrowings.append({'title': row[0], 'isbn': row[1], 'username': row[2], 'id': row[3], 'date': row[4]})
+    delayed_borrowings = list()
+    for row in delayed_borrowings_rec:
+        delayed_borrowings.append({'title': row[0], 'isbn': row[1], 'username': row[2], 'id': row[3], 'date': row[4]})
+    completed_borrowings = list()
+    for row in completed_borrowings_rec:
+        completed_borrowings.append({'title': row[0], 'isbn': row[1], 'username': row[2], 'id': row[3], 'date': row[4]})
+    active_reservations = list()
+    for row in active_reservations_rec:
+        active_reservations.append({'title': row[0], 'isbn': row[1], 'username': row[2], 'id': row[3], 'date': row[4]})
+    pending_reservations = list()
+    for row in pending_reservations_rec:
+        pending_reservations.append({'title': row[0], 'isbn': row[1], 'username': row[2], 'id': row[3], 'date': row[4]})
+    
+    return render_template("manager_borrowings.html", view='manager', id=id, pending_reservations=pending_reservations
+                           , active_reservations=active_reservations, delayed_borrowings=delayed_borrowings
+                           , active_borrowings=active_borrowings, completed_borrowings=completed_borrowings)
 
 @manager_views.route('/lib<id>/manager/borrowings/borrow_book', methods=['POST'])
 @library_exists
@@ -510,7 +590,6 @@ def return_book(id):
 
     if not borrowing_exists:
         flash('No such active borrowing exists.', category='error')
-        return redirect(url_for('manager_views.borrowings', id=id))
     else:
         cur = mydb.connection.cursor()
         # mark the borrow as 'completed'

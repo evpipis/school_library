@@ -78,26 +78,86 @@
   }
   tr:nth-child(even){background-color: #f5f5f5}
   </style>
- 
     <table class="styled-table">
+      <h3> Pending and Active Reservations</h3>
       <thead>
           <tr>
-              <th>Book Title</th>
-              <th>Borrowing Date</th>
-              <th>Return Date</th>
-              <th>Maximum Borrowing Time (return until)</th>
+              <th>Book Title (isbn)</th>
+              <th>Member Username (id)</th>
+              <th>Satus</th>
+              <th>From Date</th>
           </tr>
       </thead>
       <tbody>
-        {% for title, borrowing_date, return_date, limit_date in borrow_data %}
+        {% for reservation in pending_reservations %}
           <tr class="active-row"> 
-              <td>  {{ title }}</td>
-              <td>  {{ borrowing_date }}</td>
-              <td>  {{ return_date }}</td>
-              <td>  {{ limit_date }}</td>
+              <td>  {{reservation.title}} ({{reservation.isbn}}) </td>
+              <td>  {{reservation.username}} ({{reservation.id}})</td>
+              <td>  'pending'</td>
+              <td>  {{reservation.date}}</td>
+              <td>  BUTTON </td>
+        {% endfor %}
+        {% for reservation in active_reservations %}
+          <tr class="active-row"> 
+              <td>  {{reservation.title}} ({{reservation.isbn}}) </td>
+              <td>  {{reservation.username}} ({{reservation.id}})</td>
+              <td>  'active'</td>
+              <td>  {{reservation.date}}</td>
               <td>  BUTTON </td>
         {% endfor %}
       </tbody>
-  </table>  
+    </table>  
+ 
+    <table class="styled-table">
+      <h3> Delayed and Active Borrowings</h3>
+      <thead>
+          <tr>
+              <th>Book Title (isbn)</th>
+              <th>Member Username (id)</th>
+              <th>Satus</th>
+              <th>From Date</th>
+          </tr>
+      </thead>
+      <tbody>
+        {% for borrow in delayed_borrowings %}
+          <tr class="active-row"> 
+              <td>  {{borrow.title}} ({{borrow.isbn}}) </td>
+              <td>  {{borrow.username}} ({{borrow.id}})</td>
+              <td>  'delayed'</td>
+              <td>  {{borrow.date}}</td>
+              <td>  BUTTON </td>
+        {% endfor %}
+        {% for borrow in active_borrowings %}
+          <tr class="active-row"> 
+              <td>  {{borrow.title}} ({{borrow.isbn}}) </td>
+              <td>  {{borrow.username}} ({{borrow.id}})</td>
+              <td>  'active'</td>
+              <td>  {{borrow.date}}</td>
+              <td>  BUTTON </td>
+        {% endfor %}
+      </tbody>
+    </table>
+
+    <table class="styled-table">
+      <h3> Completed Borrowings</h3>
+      <thead>
+          <tr>
+              <th>Book Title (isbn)</th>
+              <th>Member Username (id)</th>
+              <th>Satus</th>
+              <th>From Date</th>
+          </tr>
+      </thead>
+      <tbody>
+        {% for borrow in completed_borrowings %}
+          <tr class="active-row"> 
+              <td>  {{borrow.title}} ({{borrow.isbn}}) </td>
+              <td>  {{borrow.username}} ({{borrow.id}})</td>
+              <td>  'completed'</td>
+              <td>  {{borrow.date}}</td>
+              <td>  BUTTON </td>
+        {% endfor %}
+      </tbody>
+    </table>
   
 {% endblock %}
