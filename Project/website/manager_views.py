@@ -458,8 +458,79 @@ def borrow_book(id):
 @library_exists
 @manager_required
 def return_book(id):
-    print("inside return")
-    flash('Return action completed successfully.', category='success')
+    ##### taking book_title and member_username for simplicity in testing
+    ##### change that to book_isbn and member_id
+    member_username = request.form.get('user_username')
+    book_title = request.form.get('book_title')
+
+    # title is unique only for testing purposes
+    # change that in the end
+    cur = mydb.connection.cursor()
+    cur.execute(f'''
+        SELECT id
+        FROM book_title
+        WHERE title = '{book_title}'; 
+    ''')
+    mydb.connection.commit()
+    book_id = cur.fetchall()
+
+    cur.execute(f'''
+        SELECT id
+        FROM user
+        WHERE username = '{member_username}' AND school_id = {id}
+            AND (role = 'member-student' OR role = 'member-teacher');
+    ''')
+    mydb.connection.commit()
+    member_id = cur.fetchall()
+    cur.close()
+
+    if not book_id:
+        flash('No such book title.', category='error')
+        return redirect(url_for('manager_views.borrowings', id=id))
+    if not member_id:
+        flash('No such member in this library.', category='error')
+        return redirect(url_for('manager_views.borrowings', id=id))
+    
+    book_id = int(book_id[0][0])
+    member_id = int(member_id[0][0])
+
+    print(book_id, member_id)
+
+    cur = mydb.connection.cursor()
+    # mark the borrow as 'completed'
+    cur.execute(f'''
+        SELECT id
+        FROM borrowing
+        WHERE user_id = {member_id} AND book_id = {book_id} AND status = 'active';
+    ''')
+    mydb.connection.commit()
+    borrowing_exists = cur.fetchall()
+    cur.close()
+
+
+    if not borrowing_exists:
+        flash('No such active borrowing exists.', category='error')
+        return redirect(url_for('manager_views.borrowings', id=id))
+    else:
+        cur = mydb.connection.cursor()
+        # mark the borrow as 'completed'
+        cur.execute(f'''
+            UPDATE borrowing
+            SET status = 'completed', return_date = CURRENT_DATE()
+            WHERE user_id = {member_id} AND book_id = {book_id} AND status = 'active';
+        ''')
+        mydb.connection.commit()
+
+        # add one copy
+        cur.execute(f'''
+            UPDATE book_instance
+            SET copies = copies+1
+            WHERE book_id = {book_id} AND school_id = {id};
+        ''')
+        mydb.connection.commit()
+        cur.close()
+        flash('Return action completed successfully.', category='success')
+        return redirect(url_for('manager_views.borrowings', id=id))
     return redirect(url_for('manager_views.borrowings', id=id))
 
 ### reviews views

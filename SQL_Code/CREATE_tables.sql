@@ -35,9 +35,10 @@ CREATE TABLE book_title
 (
 	id INT AUTO_INCREMENT,
 		PRIMARY KEY(id),
-	title VARCHAR(100),
+	-- TEMPORARLY UNIQUE FOR TESTING PURPOSES
+	title VARCHAR(100) UNIQUE,
 	publisher VARCHAR(100) NOT NULL,
-	isbn CHAR(17) NOT NULL,
+	isbn CHAR(17) UNIQUE NOT NULL,
     pages INT NOT NULL,
 	summary MEDIUMTEXT NOT NULL,
 	image VARCHAR(200) ,
@@ -105,10 +106,10 @@ create table book_instance
 
 create table review
 (
-	-- id int primary key auto_increment,
+	id int auto_increment,
+		primary key(id),
 	user_id int not null,
 	book_id int not null,
-		primary key(book_id, user_id),
 	foreign key(user_id) references user(id),
 	foreign key(book_id) references book_title(id),
 	opinion text not null,
@@ -116,7 +117,8 @@ create table review
 	is_active bool not null -- approved is needed only if we have to deal with a student
 );
 
-create table borrowing(
+create table borrowing
+(
 	id int auto_increment,
 		PRIMARY KEY(id),
 	user_id int not null, 
@@ -128,11 +130,12 @@ create table borrowing(
     -- expire_date = borrowing_date + 1week
 	-- maxBorrowingTime date,
 	foreign key(user_id) references user(id),
-	foreign key(book_id) references book_instance(id),
+	foreign key(book_id) references book_title(id),
 	foreign key(manager_id) references user(id)
 );
 
-create table reservation (
+create table reservation
+(
     id int auto_increment,
 		PRIMARY KEY(id),
     book_id int not null,
@@ -143,7 +146,7 @@ create table reservation (
     -- expire_date = borrowing_date + 1week
     -- expiringDate date not null,
     foreign key (user_id) references user(id),
-    foreign key (book_id) references book_instance(id)
+    foreign key (book_id) references book_title(id)
 );
 
 DELIMITER //
@@ -152,16 +155,16 @@ DELIMITER //
 CREATE TRIGGER activateReservation AFTER UPDATE ON book_instance FOR EACH ROW
 BEGIN
 	-- add copies one by one in the database
-	IF NEW.copies = 1 AND EXISTS (SELECT * FROM reservation WHERE reservation.book_id = NEW.id AND reservation.status = 'pending') THEN
+	IF NEW.copies > 0 AND EXISTS (SELECT * FROM reservation WHERE reservation.book_id = NEW.book_id AND reservation.status = 'pending') THEN
 		-- make reservation 'active' from 'pending'
         UPDATE reservation
         SET reservation.status = 'active' AND reservation.reservation_date = CURRENT_DATE()
-        WHERE reservation.book_id = NEW.id AND reservation.status = 'pending'
+        WHERE reservation.book_id = NEW.book_id AND reservation.status = 'pending'
         ORDER BY reservation.id
         LIMIT 1;
         
         -- bind one copy of the book_instance for the reservation just activated
-		UPDATE book_instance SET book_instance.copies = book_instance.copies-1 WHERE book_istance.id = NEW.id;
+		UPDATE book_instance SET book_instance.copies = book_instance.copies-1 WHERE book_istance.id = NEW.book_id;
     END IF;
 END //
 
