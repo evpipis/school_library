@@ -3,9 +3,101 @@
 {% block title %} Manager Borrowings {% endblock %}
 
 {% block content %}
-  <h1>
-    This is the lib{{id}}/manager/borrowings page!
-  </h1>
+<form action={{ url_for('manager_views.borrow_book', id=id) }} method="POST">
+  <h3 align="center"> Borrow Action </h3>
 
+  <div class="form-group">
+    <label for="book_title"> Book Title </label>
+    <input
+    type="text"
+    class="form-control"
+    id="book_title"
+    name="book_title"
+    />
+  </div>
+
+  <div class="form-group">
+    <label for="user_username"> Member Username </label>
+    <input
+    type="text"
+    class="form-control"
+    id="user_username"
+    name="user_username"
+    />
+  </div>
+
+  <br />
+  
+  <button type="submit" class="btn btn-primary"> Borrow </button>
+  
+</form>
+
+<form action={{ url_for('manager_views.return_book', id=id) }} method="POST">
+  <h3 align="center"> Return Action </h3>
+
+  <div class="form-group">
+    <label for="book_isbn"> Book ISBN </label>
+    <input
+    type="text"
+    class="form-control"
+    id="book_isbn"
+    name="book_isbn"
+    />
+  </div>
+
+  <div class="form-group">
+    <label for="user_id"> Member ID </label>
+    <input
+    type="text"
+    class="form-control"
+    id="user_id"
+    name="user_id"
+    />
+  </div>
+
+  <br />
+  
+  <button type="submit" class="btn btn-primary"> Return </button>
+  
+</form>
+
+<br />
+
+<style>
+  table {
+      border-collapse: collapse;
+      width: 100%;
+  }
+  th{
+    background-color: #72d372;
+  }
+  th, td {
+      text-align: left;
+      padding: 8px;
+      
+  }
+  tr:nth-child(even){background-color: #f5f5f5}
+  </style>
+ 
+    <table class="styled-table">
+      <thead>
+          <tr>
+              <th>Book Title</th>
+              <th>Borrowing Date</th>
+              <th>Return Date</th>
+              <th>Maximum Borrowing Time (return until)</th>
+          </tr>
+      </thead>
+      <tbody>
+        {% for title, borrowing_date, return_date, limit_date in borrow_data %}
+          <tr class="active-row"> 
+              <td>  {{ title }}</td>
+              <td>  {{ borrowing_date }}</td>
+              <td>  {{ return_date }}</td>
+              <td>  {{ limit_date }}</td>
+              <td>  BUTTON </td>
+        {% endfor %}
+      </tbody>
+  </table>  
   
 {% endblock %}

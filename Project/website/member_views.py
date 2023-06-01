@@ -180,7 +180,17 @@ def preview(id, bookid):
 @library_exists
 @member_required
 def my_borrowings(id):
-    return render_template("member_my_borrowings.html", view='member', id=id)
+    # cur = mydb.connection.cursor()
+    # user_id = session.get('id')
+    # cur.execute(f'''
+    #     SELECT book_title.title, borrowing.borrow_date, borrow.return_date, borrow.maxBorrowingTime FROM
+    #     borrow INNER JOIN bookCopy ON borrow.bookId = bookCopy.id
+    #     INNER JOIN bookTitle ON bookCopy.bookTitleId = bookTitle.id
+    #     WHERE borrow.userId = {user_id}
+    # ''')
+    # borrow_data = cur.fetchall()
+    # cur.close()
+    return render_template("member_my_borrowings.html", view='member', id=id, borrow_data = (('fsda', 'fsdfd', 'fsd', 'dsf'),))
 
 @member_views.route('/lib<id>/member/my_reviews')
 @library_exists
