@@ -404,25 +404,26 @@ def borrow_book(id):
     book_id = cur.fetchall()
 
     cur.execute(f'''
-        SELECT id
+        SELECT id, role
         FROM user
-        WHERE username = '{member_username}' AND school_id = {id}
+        WHERE username = '{member_username}'
             AND (role = 'member-student' OR role = 'member-teacher');
     ''')
     mydb.connection.commit()
-    member_id = cur.fetchall()
+    member = cur.fetchall()
     cur.close()
 
     if not book_id:
         flash('No such book title.', category='error')
         return redirect(url_for('manager_views.borrowings', id=id))
-    if not member_id:
+    if not member:
         flash('No such member in this library.', category='error')
         return redirect(url_for('manager_views.borrowings', id=id))
     
     book_id = int(book_id[0][0])
-    member_id = int(member_id[0][0])
+    member_id = int(member[0][0])
     manager_id = int(session['id'])
+    member_role = member[0][1]
 
     cur = mydb.connection.cursor()
     cur.execute(f'''
@@ -452,7 +453,7 @@ def borrow_book(id):
     cur.execute(f'''
         SELECT *
         FROM borrowing
-        WHERE user_id = {member_id} AND book_id = {book_id} AND status = 'active';
+        WHERE user_id = {member_id} AND book_id = {book_id} AND (status = 'active' OR status = 'delayed');
     ''')
     mydb.connection.commit()
     same_book_borrowed = cur.fetchall()
@@ -473,15 +474,17 @@ def borrow_book(id):
         WHERE book_instance.school_id = {id} AND book_title.id = {book_id};
     ''')
     mydb.connection.commit()
-    book_copies = cur.fetchall()[0][0]
+    book_copies = cur.fetchall()
     print(book_copies)
 
     cur.close()
     
     if delayed_borrowing:
         flash('Member has a delayed borrowing.', category='error')
-    elif last_week_borrowings == 2:
-        flash('Member has already borrowed two books this week.', category='error')
+    elif member_role == 'member-student' and len(last_week_borrowings) >= 2:
+        flash('Member (student) has already borrowed two books this week.', category='error')
+    elif member_role == 'member-teacher' and len(last_week_borrowings) >= 1:
+        flash('Member (teacher) has already borrowed one book this week.', category='error')
     elif not book_instance_exists:
         flash('Book instance does not exist in the library.', category='error')
     elif same_book_borrowed:
@@ -508,7 +511,7 @@ def borrow_book(id):
             mydb.connection.commit()
             cur.close()
             flash('Book was borrowed successfully (with reservation).', category='success')
-        elif book_copies > 0:
+        elif book_copies[0][0] > 0:
             cur = mydb.connection.cursor()
             # insert the new borrow
             cur.execute(f'''
@@ -530,7 +533,7 @@ def borrow_book(id):
             cur.close()
             flash('Book was borrowed successfully (no reservation).', category='success')
         else:
-            flash('There is no reservation and no availability for the book.', category='error')
+            flash('There is no active reservation and no availability for the book.', category='error')
 
     return redirect(url_for('manager_views.borrowings', id=id))
 
@@ -577,11 +580,10 @@ def return_book(id):
     print(book_id, member_id)
 
     cur = mydb.connection.cursor()
-    # mark the borrow as 'completed'
     cur.execute(f'''
         SELECT id
         FROM borrowing
-        WHERE user_id = {member_id} AND book_id = {book_id} AND status = 'active';
+        WHERE user_id = {member_id} AND book_id = {book_id} AND (status = 'active' OR status = 'delayed');
     ''')
     mydb.connection.commit()
     borrowing_exists = cur.fetchall()
@@ -589,14 +591,14 @@ def return_book(id):
 
 
     if not borrowing_exists:
-        flash('No such active borrowing exists.', category='error')
+        flash('No such active/delayed borrowing exists.', category='error')
     else:
         cur = mydb.connection.cursor()
         # mark the borrow as 'completed'
         cur.execute(f'''
             UPDATE borrowing
             SET status = 'completed', return_date = CURRENT_DATE()
-            WHERE user_id = {member_id} AND book_id = {book_id} AND status = 'active';
+            WHERE user_id = {member_id} AND book_id = {book_id} AND (status = 'active' OR status = 'delayed');
         ''')
         mydb.connection.commit()
 

@@ -3,106 +3,142 @@
 {% block title %} Member My Borrowings {% endblock %}
 
 {% block content %}
-  <h1>
-    This is the lib{{id}}/member/my_borrowings page!
-  </h1>
+<form action={{ url_for('member_views.reserve_book', id=id) }} method="POST">
+  <h3 align="center"> Reservation Request </h3>
 
-  <style>
-    table {
-        border-collapse: collapse;
-        width: 100%;
-    }
-    th{
-      background-color: #72d372;
-    }
-    th, td {
-        text-align: left;
-        padding: 8px;
-        
-    }
-    tr:nth-child(even){background-color: #f5f5f5}
-    </style>
-   
-   <table class="styled-table">
-    <h3> Pending and Active Reservations</h3>
-    <thead>
-        <tr>
-            <th>Book Title (isbn)</th>
-            <th>Member Username (id)</th>
-            <th>Satus</th>
-            <th>From Date</th>
-        </tr>
-    </thead>
-    <tbody>
-      {% for reservation in pending_reservations %}
-        <tr class="active-row"> 
-            <td>  {{reservation.title}} ({{reservation.isbn}}) </td>
-            <td>  {{reservation.username}} ({{reservation.id}})</td>
-            <td>  'pending'</td>
-            <td>  {{reservation.date}}</td>
-            <td>  BUTTON </td>
-      {% endfor %}
-      {% for reservation in active_reservations %}
-        <tr class="active-row"> 
-            <td>  {{reservation.title}} ({{reservation.isbn}}) </td>
-            <td>  {{reservation.username}} ({{reservation.id}})</td>
-            <td>  'active'</td>
-            <td>  {{reservation.date}}</td>
-            <td>  BUTTON </td>
-      {% endfor %}
-    </tbody>
-  </table>  
+  <div class="form-group">
+    <label for="book_title"> Book Title </label>
+    <input
+    type="text"
+    class="form-control"
+    id="book_title"
+    name="book_title"
+    />
+  </div>
 
-  <table class="styled-table">
-    <h3> Delayed and Active Borrowings</h3>
-    <thead>
-        <tr>
-            <th>Book Title (isbn)</th>
-            <th>Member Username (id)</th>
-            <th>Satus</th>
-            <th>From Date</th>
-        </tr>
-    </thead>
-    <tbody>
-      {% for borrow in delayed_borrowings %}
-        <tr class="active-row"> 
-            <td>  {{borrow.title}} ({{borrow.isbn}}) </td>
-            <td>  {{borrow.username}} ({{borrow.id}})</td>
-            <td>  'delayed'</td>
-            <td>  {{borrow.date}}</td>
-            <td>  BUTTON </td>
-      {% endfor %}
-      {% for borrow in active_borrowings %}
-        <tr class="active-row"> 
-            <td>  {{borrow.title}} ({{borrow.isbn}}) </td>
-            <td>  {{borrow.username}} ({{borrow.id}})</td>
-            <td>  'active'</td>
-            <td>  {{borrow.date}}</td>
-            <td>  BUTTON </td>
-      {% endfor %}
-    </tbody>
-  </table>
-
-  <table class="styled-table">
-    <h3> Completed Borrowings</h3>
-    <thead>
-        <tr>
-            <th>Book Title (isbn)</th>
-            <th>Member Username (id)</th>
-            <th>Satus</th>
-            <th>From Date</th>
-        </tr>
-    </thead>
-    <tbody>
-      {% for borrow in completed_borrowings %}
-        <tr class="active-row"> 
-            <td>  {{borrow.title}} ({{borrow.isbn}}) </td>
-            <td>  {{borrow.username}} ({{borrow.id}})</td>
-            <td>  'completed'</td>
-            <td>  {{borrow.date}}</td>
-            <td>  BUTTON </td>
-      {% endfor %}
-    </tbody>
-  </table>
+  <br />
   
+  <button type="submit" class="btn btn-primary"> Reserve </button>
+  
+</form>
+
+<form action={{ url_for('member_views.cancel_book', id=id) }} method="POST">
+  <h3 align="center"> Cancel Reservation </h3>
+
+  <div class="form-group">
+    <label for="book_title"> Book Title </label>
+    <input
+    type="text"
+    class="form-control"
+    id="book_title"
+    name="book_title"
+    />
+  </div>
+
+  <br />
+  
+  <button type="submit" class="btn btn-primary"> Cancel </button>
+  
+</form>
+
+<br />
+
+<style>
+  table {
+      border-collapse: collapse;
+      width: 100%;
+  }
+  th{
+    background-color: #72d372;
+  }
+  th, td {
+      text-align: left;
+      padding: 8px;
+      
+  }
+  tr:nth-child(even){background-color: #f5f5f5}
+  </style>
+  
+  <table class="styled-table">
+  <h3> Pending and Active Reservations</h3>
+  <thead>
+      <tr>
+          <th>Book Title (isbn)</th>
+          <th>Member Username (id)</th>
+          <th>Satus</th>
+          <th>From Date</th>
+      </tr>
+  </thead>
+  <tbody>
+    {% for reservation in pending_reservations %}
+      <tr class="active-row"> 
+          <td>  {{reservation.title}} ({{reservation.isbn}}) </td>
+          <td>  {{reservation.username}} ({{reservation.id}})</td>
+          <td>  'pending'</td>
+          <td>  {{reservation.date}}</td>
+          <td>  BUTTON </td>
+    {% endfor %}
+    {% for reservation in active_reservations %}
+      <tr class="active-row"> 
+          <td>  {{reservation.title}} ({{reservation.isbn}}) </td>
+          <td>  {{reservation.username}} ({{reservation.id}})</td>
+          <td>  'active'</td>
+          <td>  {{reservation.date}}</td>
+          <td>  BUTTON </td>
+    {% endfor %}
+  </tbody>
+</table>  
+
+<table class="styled-table">
+  <h3> Delayed and Active Borrowings</h3>
+  <thead>
+      <tr>
+          <th>Book Title (isbn)</th>
+          <th>Member Username (id)</th>
+          <th>Satus</th>
+          <th>From Date</th>
+      </tr>
+  </thead>
+  <tbody>
+    {% for borrow in delayed_borrowings %}
+      <tr class="active-row"> 
+          <td>  {{borrow.title}} ({{borrow.isbn}}) </td>
+          <td>  {{borrow.username}} ({{borrow.id}})</td>
+          <td>  'delayed'</td>
+          <td>  {{borrow.date}}</td>
+          <td>  BUTTON </td>
+    {% endfor %}
+    {% for borrow in active_borrowings %}
+      <tr class="active-row"> 
+          <td>  {{borrow.title}} ({{borrow.isbn}}) </td>
+          <td>  {{borrow.username}} ({{borrow.id}})</td>
+          <td>  'active'</td>
+          <td>  {{borrow.date}}</td>
+          <td>  BUTTON </td>
+    {% endfor %}
+  </tbody>
+</table>
+
+<table class="styled-table">
+  <h3> Completed Borrowings</h3>
+  <thead>
+      <tr>
+          <th>Book Title (isbn)</th>
+          <th>Member Username (id)</th>
+          <th>Satus</th>
+          <th>From Date</th>
+      </tr>
+  </thead>
+  <tbody>
+    {% for borrow in completed_borrowings %}
+      <tr class="active-row"> 
+          <td>  {{borrow.title}} ({{borrow.isbn}}) </td>
+          <td>  {{borrow.username}} ({{borrow.id}})</td>
+          <td>  'completed'</td>
+          <td>  {{borrow.date}}</td>
+          <td>  BUTTON </td>
+    {% endfor %}
+  </tbody>
+</table>
+
 {% endblock %}

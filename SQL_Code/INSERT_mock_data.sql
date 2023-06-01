@@ -19,7 +19,10 @@ VALUES
 	('member-teacher2', 'member-teacher2', 'member-teacher', 2, TRUE, 'Teacher 2', '2000-01-01'),
 	('member-student1', 'member-student1', 'member-student', 1, TRUE, 'Student 1', '2000-01-01'),
 	('member-student2', 'member-student2', 'member-student', 2, TRUE, 'Student 2', '2000-01-01'),
-	('member-student3', 'member-student3', 'member-student', 1, FALSE, 'Student 3', '2000-01-01')
+	('member-student3', 'member-student3', 'member-student', 1, FALSE, 'Student 3', '2000-01-01'),
+    ('other1', 'other1', 'member-student', 1, TRUE, 'Other 1', '2000-01-01'),
+    ('other2', 'other2', 'member-student', 1, TRUE, 'Other 2', '2000-01-01'),
+    ('other3', 'other3', 'member-student', 1, TRUE, 'Other 3', '2000-01-01')
 ;
 
 INSERT INTO book_title
@@ -107,3 +110,20 @@ VALUES
     (3, 2, 1),
     (1, 3, 2)
 ;
+
+-- INSERT INTO borrowing
+-- 	(user_id, book_id, manager_id, status, borrow_date, return_date)
+-- VALUES
+-- 	(10, 1, 2, 'completed', '2023-05-22', '2023-05-27'),
+--     (12, 2, 2, 'completed', '2023-05-25', '2023-05-29'),
+--     (10, 2, 2, 'active', '2023-05-26', NULL),
+--     (11, 2, 2, 'active', '2023-05-30', NULL)
+-- ;
+
+-- INSERT INTO reservation
+-- 	(user_id, book_id, status, request_date, reserve_date)
+-- VALUES
+-- 	(7, 2, 'pending', '2023-06-01', NULL),
+--     (5, 2, 'pending', '2023-06-01', NULL),
+--     (7, 1, 'active', '2023-06-01', '2023-06-01')
+-- ;

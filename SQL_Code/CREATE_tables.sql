@@ -125,7 +125,7 @@ create table borrowing
 	book_id int not null,
     status ENUM('active', 'delayed', 'completed') NOT NULL,
 	manager_id int not null,
-	borrow_date date,
+	borrow_date date not null,
 	return_date date,
     -- expire_date = borrowing_date + 1week
 	-- maxBorrowingTime date,
@@ -142,7 +142,7 @@ create table reservation
     user_id int not null,
     status ENUM('pending', 'active', 'expired') NOT NULL,
     request_date date not null,
-    reserve_date date not null,
+    reserve_date date,
     -- expire_date = borrowing_date + 1week
     -- expiringDate date not null,
     foreign key (user_id) references user(id),
@@ -152,19 +152,26 @@ create table reservation
 DELIMITER //
 -- this activates pending reservation when the requested book_instance becomes available
 -- there are no reservation before inserting the book_instance on the library
-CREATE TRIGGER activateReservation AFTER UPDATE ON book_instance FOR EACH ROW
+CREATE TRIGGER activateReservation BEFORE UPDATE ON book_instance FOR EACH ROW
 BEGIN
 	-- add copies one by one in the database
-	IF NEW.copies > 0 AND EXISTS (SELECT * FROM reservation WHERE reservation.book_id = NEW.book_id AND reservation.status = 'pending') THEN
+	IF NEW.copies > 0 AND EXISTS (
+		SELECT * FROM reservation
+        INNER JOIN user
+        ON reservation.user_id = user.id
+        WHERE user.school_id = NEW.school_id AND reservation.book_id = NEW.book_id AND reservation.status = 'pending'
+	) THEN
 		-- make reservation 'active' from 'pending'
         UPDATE reservation
-        SET reservation.status = 'active' AND reservation.reservation_date = CURRENT_DATE()
-        WHERE reservation.book_id = NEW.book_id AND reservation.status = 'pending'
+        INNER JOIN user
+        ON reservation.user_id = user.id
+        SET reservation.status = 'active', reservation.reserve_date = CURRENT_DATE()
+        WHERE user.school_id = NEW.school_id AND reservation.book_id = NEW.book_id AND reservation.status = 'pending'
         ORDER BY reservation.id
         LIMIT 1;
         
         -- bind one copy of the book_instance for the reservation just activated
-		UPDATE book_instance SET book_instance.copies = book_instance.copies-1 WHERE book_istance.id = NEW.book_id;
+        SET NEW.copies = NEW.copies-1;
     END IF;
 END //
 
@@ -184,7 +191,7 @@ CREATE EVENT e_daily
         
         -- update expired reservations (whether they are pending or active)
         UPDATE reservation, book_instance
-        SET reservation.status = 'expired' AND book_instance.copies = book_instance.copies+1
+        SET reservation.status = 'expired', book_instance.copies = book_instance.copies+1
         WHERE (reservation.status = 'pending' AND CURRENT_DATE() > DATE_ADD(reservation.request_date, INTERVAL 1 WEEK))
 			OR (reservation.status = 'active' AND CURRENT_DATE() > DATE_ADD(reservation.reserve_date, INTERVAL 1 WEEK));
       END |
