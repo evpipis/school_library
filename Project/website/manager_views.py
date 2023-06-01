@@ -70,7 +70,7 @@ def books(id):
 
         if (filter == 'title'):
             cur.execute (f'''
-                SELECT title, copies, book_instance.id
+                SELECT title, copies, book_title.id
                 FROM book_title INNER JOIN book_instance ON book_title.id = book_instance.book_id 
                 WHERE book_instance.school_id = {id} AND book_title.title = '{keyword}';
             ''')
@@ -111,14 +111,128 @@ def books(id):
     schoolname = cur.fetchone()
 
     cur.execute(f'''
-        SELECT title, copies, book_instance.id
+        SELECT title, copies, book_title.id
         FROM book_title INNER JOIN book_instance
         ON book_title.id = book_instance.book_id
         WHERE book_instance.school_id = {id};
     ''')
     lib_books = cur.fetchall()
     cur.close()
+    print(lib_books)
     return render_template("manager_books.html", view='manager', id=id, schoolname = schoolname[0], lib_books = lib_books)
+
+@manager_views.route('/lib<id>/manager/add_book',methods=['GET','POST'])
+@library_exists
+@manager_required
+def add_book(id):
+    if request.method=='POST':
+        title = request.form.get('title')
+        copies = request.form.get('copies')
+        isbn = request.form.get('isbn')
+        lang_id = request.form.get('lang_id')
+        authors = request.form.get('authors')
+        categories = request.form.get('categories')
+        publisher = request.form.get('publisher')
+        pages = request.form.get('pages')
+        keywords = request.form.get('keywords')
+        image = request.form.get('image')
+        summary = request.form.get('summary')
+        
+        print(title, copies,isbn,lang_id,authors,categories,publisher, pages,keywords,image,summary)
+        
+        cur = mydb.connection.cursor()
+
+        ### book title is unique for simplicity/normally i would replace it with book isbn
+        cur.execute(f'''
+            SELECT book_title.id FROM book_title
+            WHERE title = '{title}'
+        ''')
+        title_id = cur.fetchone()
+
+        # Book title doesn't exist!
+        if(title_id == None):
+            if (title==None or copies==None or isbn==None or lang_id==None or authors==None or categories==None
+                or publisher==None or pages==None or keywords==None or image==None or summary==None):
+                flash('This book title doesn\'t exist. Complete all form fields.', category='error')
+                return render_template("manager_add_book.html", view='manager',id=id, book_exists = False) 
+            else:
+                cur.execute('''
+                    INSERT INTO book_title (title, publisher, isbn, summary, image, lang_id, pages)
+                    VALUES (%s, %s, %s, %s, %s, %s, %s);''',
+                    (title, publisher, isbn, summary, image, lang_id, pages)
+                )
+                mydb.connection.commit()
+
+                cur.execute(f'''
+                    SELECT id FROM book_title 
+                    WHERE book_title.title = '{title}'
+                ''')
+                bookid = cur.fetchone()
+                
+                # for author in authors.split(','):
+                #     cur.execute(f'''
+                #     CALL revise_authors('{author}',{bookid[0]})
+                # ''')
+
+                # for category in categories.split(','):
+                #     cur.execute(f'''
+                #     CALL revise_categories('{category}',{bookid[0]})
+                # ''')
+                
+                # for keyword in keywords.split(','):
+                # cur.execute(f'''
+                # CALL revise_keywords('{keyword}',{bookid[0]})''')  
+    
+                cur.execute('''
+                    INSERT INTO book_instance
+                    (book_id, school_id, copies)
+                    VALUES 
+                    (%s, %s, %s); ''',
+                    (bookid, id, copies)
+                )  
+                mydb.connection.commit()
+                cur.close()
+
+                flash('New book title and book instance added successfully!', category='success')
+                return redirect(url_for('manager_views.books', id=id))
+        # Book title already exists!
+        else:
+            cur.execute(f'''
+                SELECT id FROM book_instance 
+                WHERE school_id = {id} AND book_id = {title_id[0]}
+            ''')
+            copy_id = cur.fetchone()
+
+            # Book instance doesn't exist
+            if (copy_id==None):
+                print(title_id[0], id, copies)
+                cur.execute('''
+                    INSERT INTO book_instance
+                        (book_id, school_id, copies)
+                    VALUES 
+                        (%s, %s, %s); '''
+                    ,(title_id[0], id, copies)
+                )
+                mydb.connection.commit()
+                cur.close()
+
+                flash('Book instances added to school\'s library successfully!', category='success')
+                return redirect(url_for('manager_views.books', id=id))
+            # Book instance already exists, just add the extra copies
+            else:
+                cur.execute('''
+                    UPDATE book_instance
+                    SET copies = copies+%s
+                    WHERE id = %s; ''',
+                    (copies, copy_id[0])
+                )
+                mydb.connection.commit()
+                cur.close()
+
+                flash('Book instance already exists in school\'s library. Updated number of copies successfully!', category='success')
+                return redirect(url_for('manager_views.books', id=id))
+
+    return render_template("manager_add_book.html", view='manager',id=id, book_exists = True)   
 
 ### preview views
 
@@ -134,6 +248,7 @@ def preview(id, bookid):
         WHERE book_title.id = {bookid};
     ''')
     title = cur.fetchone()
+    print("title=", title)
 
     cur.execute(f'''
         SELECT isbn 
@@ -141,6 +256,7 @@ def preview(id, bookid):
         WHERE book_title.id = {bookid};
     ''')
     isbn = cur.fetchone()
+    print("isbn=", isbn)
 
     cur.execute(f'''
         SELECT author

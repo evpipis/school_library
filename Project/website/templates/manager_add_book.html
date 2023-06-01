@@ -1,0 +1,169 @@
+{% extends "base.html" %}
+
+{% block title %} Add new Book {% endblock %}
+
+{% block content %}
+  {% if book_exists %}
+  <form method="POST">
+    <h3 align="center">Add a new book in your library</h3>
+    
+    <!-- change type to more specific types -->
+    <div class="form-group">
+      <label for="title"> Book Title </label>
+      <input
+        type="text"
+        class="form-control"
+        id="title"
+        name="title"
+        placeholder="Enter Book Title"
+      />
+    </div>
+
+    <div class="form-group">
+        <label for="copies"> Number Of Copies </label>
+        <input
+          type="text"
+          class="form-control"
+          id="copies"
+          name="copies"
+          placeholder="Enter number of Copies"
+        />
+      </div>
+
+      <button type="submit" class="btn btn-primary">Add New Instance</button>
+    </form>
+
+    {% else %}
+    <br />
+    
+    <form method="POST">
+    <h3 align="center">Specify All Book Information below</h3>
+
+    <h3 align="center">Add a new book in your library</h3>
+    
+    <div class="form-group">
+      <label for="title"> Book Title </label>
+      <input
+        type="text"
+        class="form-control"
+        id="title"
+        name="title"
+        placeholder="Enter Book Title"
+      />
+    </div>
+
+    <div class="form-group">
+        <label for="copies"> Number Of Copies </label>
+        <input
+          type="text"
+          class="form-control"
+          id="copies"
+          name="copies"
+          placeholder="Enter number of Copies"
+        />
+      </div>
+
+    <div class="form-group">
+      <label for="isbn"> ISBN </label>
+      <input
+        type="text"
+        class="form-control"
+        id="isbn"
+        name="isbn"
+        placeholder="Enter ISBN"
+      />
+    </div>
+
+    <div class="form-group">
+      <label for="lang_id"> Language ID </label>
+      <input
+        type="text"
+        class="form-control"
+        id="lang_id"
+        name="lang_id"
+        placeholder="Enter the language ID (eg. EN) "
+  
+    <div class="form-group">
+      <label for="authors"> Authors </label>
+      <input
+        type="text"
+        class="form-control"
+        id="authors"
+        name="authors"
+        placeholder="Enter Author Names: (eg. Author1,Author2)"
+      /> 
+    </div>
+  
+    <div class="form-group">
+      <label for="categories"> Categories </label>
+      <input
+        type="text"
+        class="form-control"
+        id="categories"
+        name="categories"
+        placeholder="Enter related categories (eg. category1, category2)"
+      />
+    </div>
+  
+    <div class="form-group">
+      <label for="publisher"> Publisher </label>
+      <input
+        type="text"
+        class="form-control"
+        id="publisher"
+        name="publisher"
+        placeholder="Enter Publisher Full Name"
+      />
+    </div>
+    
+    <div class="form-group">
+      <label for="pages"> Number of Pages </label>
+      <input
+        type="text"
+        class="form-control"
+        id="pages"
+        name="pages"
+        placeholder="Enter number of pages"
+      />
+    </div>
+    
+     <div class="form-group">
+      <label for="keywords">Keywords</label>
+      <input
+        type="text"
+        class="form-control"
+        id="keywords"
+        name="keywords"
+        placeholder="Enter book keywords eg. (keyword1, keyword2)"
+      />
+    </div>
+    
+    <div class="form-group">
+      <label for="image">Book Image</label>
+      <input
+        type="text"
+        class="form-control"
+        id="image"
+        name="image"
+        placeholder="Enter an active image link"
+      />
+    </div>
+
+    <div class="form-group">
+      <label for="summary"> Summary </label>
+      <input
+        type="text"
+        class="form-control"
+        id="summary"
+        name="summary"
+        placeholder="Enter book summary"
+        />
+    </div>
+    <br />
+    
+    <button type="submit" class="btn btn-primary">Add New Title</button>
+  </form>
+
+  {% endif %}
+  
+{% endblock %}
