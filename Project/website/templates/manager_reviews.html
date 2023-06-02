@@ -3,9 +3,46 @@
 {% block title %} Manager Reviews {% endblock %}
 
 {% block content %}
-  <h1>
-    This is the lib{{id}}/manager/reviews page!
-  </h1>
+<!-- INACTIVE REVIEWS -->
+<ul class="list-group list-group-flush" id="manager_inactive_reviews">
+  <h3 align="center">Inactive Reviews</h3>
+  {% for review in inactive_reviews %}
+  <li class="list-group-item">
+    Review for {{review.title}} ({{review.isbn}}) by {{review.username}} ({{review.user_id}})
+    <form method="POST">
+      <label for="stars">Number of stars:</label>
+      <select id="stars" name="stars" disabled>
+        <option value="default"> {{review.stars}} stars</option>
+      </select>
+      <br><br>
+      <label for="reviewText">Review:</label>
+      <textarea id="reviewText" name="reviewText" rows="4" cols="50" readonly>
+        {{review.opinion}}
+      </textarea>
+    </form>
+  </li>
+  {% endfor %}
+</ul>
 
+<!-- ACTIVE REVIEWS -->
+<ul class="list-group list-group-flush" id="manager_active_reviews">
+  <h3 align="center">Active Reviews</h3>
+  {% for review in active_reviews %}
+  <li class="list-group-item">
+    Review for {{review.title}} ({{review.isbn}}) by {{review.username}} ({{review.user_id}})
+    <form method="POST">
+      <label for="stars">Number of stars:</label>
+      <select id="stars" name="stars" disabled>
+        <option value="default"> {{review.stars}} stars</option>
+      </select>
+      <br><br>
+      <label for="reviewText">Review:</label>
+      <textarea id="reviewText" name="reviewText" rows="4" cols="50" readonly>
+        {{review.opinion}}
+      </textarea>
+    </form>
+  </li>
+  {% endfor %}
+</ul>
   
 {% endblock %}

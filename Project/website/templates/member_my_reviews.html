@@ -75,150 +75,67 @@
 </form>
 
 
-<!-- INACTIVE MEMBERS -->
-<ul class="list-group list-group-flush" id="manager_inactive_members">
-  <h3 align="center">Inactive Members</h3>
-  {% for member in inactive_members %}
+<!-- MY INACTIVE REVIEWS -->
+<ul class="list-group list-group-flush" id="member_my_inactive_reviews">
+  <h3 align="center">My Inactive Reviews</h3>
+  {% for review in my_inactive_reviews %}
   <li class="list-group-item">
-    <h2>Enter your review here!</h2>
-      <style>
-        /* Styles for the pop-up window */
-        .popup {
-          position: fixed;
-          top: 50%;
-          left: 50%;
-          transform: translate(-50%, -50%);
-          width: 600px;
-          background-color: #f5f5f5;
-          padding: 20px;
-          border-radius: 5px;
-          box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
-          z-index: 9999;
-        }
-        .popup h2 {
-          margin-top: 0;
-        }
-        .popup input[type="submit"] {
-          background-color: #4CAF50;
-          color: white;
-          padding: 10px 20px;
-          border: none;
-          border-radius: 5px;
-          cursor: pointer;
-        }
-      </style>
-      <form action="/submit_review" method="POST">
-        <label for="stars">Number of stars:</label>
-        <select id="stars" name="stars">
-          <option value="1">1 star</option>
-          <option value="2">2 stars</option>
-          <option value="3">3 stars</option>
-          <option value="4">4 stars</option>
-          <option value="5">5 stars</option>
-        </select>
-        <br><br>
-        <label for="reviewText">Review:</label>
-        <textarea id="reviewText" name="reviewText" rows="4" cols="50"></textarea>
-        <br><br>
-        <input type="submit" value="Submit Review">
-      </form>
+    Review for {{review.title}} ({{review.isbn}}) by {{review.username}} ({{review.user_id}})
+    <form method="POST">
+      <label for="stars">Number of stars:</label>
+      <select id="stars" name="stars" disabled>
+        <option value="default"> {{review.stars}} stars</option>
+      </select>
+      <br><br>
+      <label for="reviewText">Review:</label>
+      <textarea id="reviewText" name="reviewText" rows="4" cols="50" readonly>
+        {{review.opinion}}
+      </textarea>
+    </form>
   </li>
   {% endfor %}
 </ul>
 
-<!-- ACTIVE MEMBERS -->
-<ul class="list-group list-group-flush" id="manager_active_members">
-  <h3 align="center">Active Members</h3>
+<!-- MY ACTIVE REVIEWS -->
+<ul class="list-group list-group-flush" id="member_my_active_reviews">
+  <h3 align="center">My Active Reviews</h3>
+  {% for review in my_active_reviews %}
   <li class="list-group-item">
-    <h2>Enter your review here!</h2>
-      <style>
-        /* Styles for the pop-up window */
-        .popup {
-          position: fixed;
-          top: 50%;
-          left: 50%;
-          transform: translate(-50%, -50%);
-          width: 600px;
-          background-color: #f5f5f5;
-          padding: 20px;
-          border-radius: 5px;
-          box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
-          z-index: 9999;
-        }
-        .popup h2 {
-          margin-top: 0;
-        }
-        .popup input[type="submit"] {
-          background-color: #4CAF50;
-          color: white;
-          padding: 10px 20px;
-          border: none;
-          border-radius: 5px;
-          cursor: pointer;
-        }
-      </style>
-      <form action="/submit_review" method="POST">
-        <label for="stars">Number of stars:</label>
-        <select id="stars" name="stars" disabled>
-          <option value="1">1 star</option>
-          <option value="2">2 stars</option>
-          <option value="3">3 stars</option>
-          <option value="4">4 stars</option>
-          <option value="5">5 stars</option>
-        </select>
-        <br><br>
-        <label for="reviewText">Review:</label>
-        <textarea id="reviewText" name="reviewText" rows="4" cols="50" readonly>fsd fasfsdfsda</textarea>
-        <br><br>
-        <input type="submit" value="Submit Review">
-      </form>
-  </li>
-  {% for member in active_members %}
-  <li class="list-group-item">
-    <h2>Enter your review here!</h2>
-      <style>
-        /* Styles for the pop-up window */
-        .popup {
-          position: fixed;
-          top: 50%;
-          left: 50%;
-          transform: translate(-50%, -50%);
-          width: 600px;
-          background-color: #f5f5f5;
-          padding: 20px;
-          border-radius: 5px;
-          box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
-          z-index: 9999;
-        }
-        .popup h2 {
-          margin-top: 0;
-        }
-        .popup input[type="submit"] {
-          background-color: #4CAF50;
-          color: white;
-          padding: 10px 20px;
-          border: none;
-          border-radius: 5px;
-          cursor: pointer;
-        }
-      </style>
-      <form action="/submit_review" method="POST">
-        <label for="stars">Number of stars:</label>
-        <select id="stars" name="stars" disabled>
-          <option value="1">1 star</option>
-          <option value="2">2 stars</option>
-          <option value="3">3 stars</option>
-          <option value="4">4 stars</option>
-          <option value="5">5 stars</option>
-        </select>
-        <br><br>
-        <label for="reviewText">Review:</label>
-        <textarea id="reviewText" name="reviewText" rows="4" cols="50" readonly>fsafas</textarea>
-        <br><br>
-        <input type="submit" value="Submit Review" readonly>
-      </form>
+    Review for {{review.title}} ({{review.isbn}}) by {{review.username}} ({{review.user_id}})
+    <form method="POST">
+      <label for="stars">Number of stars:</label>
+      <select id="stars" name="stars" disabled>
+        <option value="default"> {{review.stars}} stars</option>
+      </select>
+      <br><br>
+      <label for="reviewText">Review:</label>
+      <textarea id="reviewText" name="reviewText" rows="4" cols="50" readonly>
+        {{review.opinion}}
+      </textarea>
+    </form>
   </li>
   {% endfor %}
 </ul>
-  
+
+<!-- MY INACTIVE REVIEWS -->
+<ul class="list-group list-group-flush" id="member_my_inactive_reviews">
+  <h3 align="center">Other Active Reviews</h3>
+  {% for review in active_reviews %}
+  <li class="list-group-item">
+    Review for {{review.title}} ({{review.isbn}}) by {{review.username}} ({{review.user_id}})
+    <form method="POST">
+      <label for="stars">Number of stars:</label>
+      <select id="stars" name="stars" disabled>
+        <option value="default"> {{review.stars}} stars</option>
+      </select>
+      <br><br>
+      <label for="reviewText">Review:</label>
+      <textarea id="reviewText" name="reviewText" rows="4" cols="50" readonly>
+        {{review.opinion}}
+      </textarea>
+    </form>
+  </li>
+  {% endfor %}
+</ul>
+
 {% endblock %}

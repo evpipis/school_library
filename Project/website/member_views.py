@@ -606,7 +606,54 @@ def cancel_book(id):
 @library_exists
 @member_required
 def my_reviews(id):
-    return render_template("member_my_reviews.html", view='member', id=id)
+    user_id = int(session['id'])
+    user_username = session['username']
+    cur = mydb.connection.cursor()
+    cur.execute(f'''
+        SELECT book_title.title, book_title.isbn, review.stars, review.opinion
+        FROM review
+        INNER JOIN book_title
+        ON review.book_id = book_title.id
+        WHERE review.user_id = {user_id} AND review.is_active = FALSE;
+    ''')
+    my_inactive_reviews_rec = cur.fetchall()
+
+    cur = mydb.connection.cursor()
+    cur.execute(f'''
+        SELECT book_title.title, book_title.isbn, review.stars, review.opinion
+        FROM review
+        INNER JOIN book_title
+        ON review.book_id = book_title.id
+        WHERE review.user_id = {user_id} AND review.is_active = TRUE;
+    ''')
+    my_active_reviews_rec = cur.fetchall()
+
+    cur = mydb.connection.cursor()
+    cur.execute(f'''
+        SELECT book_title.title, book_title.isbn, review.stars, review.opinion
+        FROM review
+        INNER JOIN book_title
+        ON review.book_id = book_title.id
+        WHERE review.is_active = TRUE;
+    ''')
+    active_reviews_rec = cur.fetchall()
+    cur.close()
+
+    my_inactive_reviews = list()
+    for row in my_inactive_reviews_rec:
+        my_inactive_reviews.append({'title': row[0], 'isbn': row[1], 'username': user_username, 'user_id': user_id, 'stars': row[2], 'opinion': row[3]})
+    my_active_reviews = list()
+    for row in my_active_reviews_rec:
+        my_active_reviews.append({'title': row[0], 'isbn': row[1], 'username': user_username, 'user_id': user_id, 'stars': row[2], 'opinion': row[3]})
+    active_reviews = list()
+    for row in active_reviews_rec:
+        active_reviews.append({'title': row[0], 'isbn': row[1], 'username': user_username, 'user_id': user_id, 'stars': row[2], 'opinion': row[3]})
+    
+
+    return render_template("member_my_reviews.html", view='member', id=id
+                           , my_inactive_reviews=my_inactive_reviews
+                           , my_active_reviews=my_active_reviews
+                           , active_reviews=active_reviews)
 
 ### settings views
 

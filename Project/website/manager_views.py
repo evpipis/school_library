@@ -736,7 +736,40 @@ def return_book(id):
 @library_exists
 @manager_required
 def reviews(id):
-    return render_template("manager_reviews.html", view='manager', id=id)
+    cur = mydb.connection.cursor()
+    cur.execute(f'''
+        SELECT book_title.title, book_title.isbn, user.username, user.id, review.stars, review.opinion
+        FROM review
+        INNER JOIN book_title
+        ON review.book_id = book_title.id
+        INNER JOIN user
+        ON review.user_id = user.id
+        WHERE review.is_active = FALSE;
+    ''')
+    inactive_reviews_rec = cur.fetchall()
+
+    cur.execute(f'''
+        SELECT book_title.title, book_title.isbn, user.username, user.id, review.stars, review.opinion
+        FROM review
+        INNER JOIN book_title
+        ON review.book_id = book_title.id
+        INNER JOIN user
+        ON review.user_id = user.id
+        WHERE review.is_active = TRUE;
+    ''')
+    active_reviews_rec = cur.fetchall()
+    cur.close()
+
+    inactive_reviews = list()
+    for row in inactive_reviews_rec:
+        inactive_reviews.append({'title': row[0], 'isbn': row[1], 'username': row[2], 'user_id': row[3], 'stars': row[4], 'opinion': row[5]})
+    active_reviews = list()
+    for row in active_reviews_rec:
+        active_reviews.append({'title': row[0], 'isbn': row[1], 'username': row[2], 'user_id': row[3], 'stars': row[4], 'opinion': row[5]})
+
+    return render_template("manager_reviews.html", view='member', id=id
+                           , inactive_reviews=inactive_reviews
+                           , active_reviews=active_reviews)
 
 ### settings views
 
