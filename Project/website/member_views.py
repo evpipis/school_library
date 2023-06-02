@@ -98,7 +98,7 @@ def books(id):
         print("cursor_closed")
         print(selected_books)
         if (selected_books!= ()):
-            return render_template("member_books.html", view='member', id=id, schoolname = schoolname[0], lib_books = selected_books)
+            return render_template("member_books.html", view='member', id=id, schoolname=schoolname[0], lib_books=selected_books)
         else:
             flash('Books not Found!', category='error')
     
@@ -111,7 +111,7 @@ def books(id):
     schoolname = cur.fetchone()
 
     cur.execute(f'''
-        SELECT title, copies, book_instance.id
+        SELECT title, copies, book_title.id
         FROM book_title INNER JOIN book_instance
         ON book_title.id = book_instance.book_id
         WHERE book_instance.school_id = {id};
