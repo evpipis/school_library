@@ -178,6 +178,7 @@ def preview(id, bookid):
 @library_exists
 @member_required
 def make_review(id, bookid):
+    print('inside review with id, book_id;', bookid)
     stars = request.form.get('stars')
     review_text = request.form.get('reviewText')
 
@@ -185,14 +186,29 @@ def make_review(id, bookid):
 
     user_id = session.get('id')
     approved = not(session.get('role') == 'member-student')
-    print(approved)
+    
+    cur.execute(f'''
+        SELECT *
+        FROM review
+        WHERE user_id = {user_id} AND book_id = {bookid};
+    ''')
+    
+    mydb.connection.commit()
+    record = cur.fetchall()
+    cur.close()
 
+    if record:
+        flash('Member has already submitted review for this book!', category='error')
+        return redirect(url_for('member_views.preview', id=id, bookid=bookid))
+
+    cur = mydb.connection.cursor()
     cur.execute('''
         INSERT INTO review (user_id , book_id, opinion, stars, is_active)
         VALUES (%s, %s, %s, %s, %s);''', 
         (user_id, bookid, review_text, stars, approved)
     )
     mydb.connection.commit()
+    cur.close()
     flash('Your review was submitted successfully!', category='success')
     return redirect(url_for('member_views.preview', id=id, bookid=bookid))
 
