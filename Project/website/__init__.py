@@ -37,4 +37,4 @@ def create_app():
 def create_database(app):
     global mydb
     mydb = MySQL(app)
-
+    
