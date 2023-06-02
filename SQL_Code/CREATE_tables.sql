@@ -219,11 +219,15 @@ CREATE EVENT e_daily
         SET borrowing.status = 'delayed'
         WHERE borrowing.status = 'active' AND CURRENT_DATE() > DATE_ADD(borrowing.borrow_date, INTERVAL 1 WEEK);
         
-        -- update expired reservations (whether they are pending or active)
+        -- update expired reservations (from pending)
+        UPDATE reservation
+        SET reservation.status = 'expired'
+        WHERE (reservation.status = 'pending' AND CURRENT_DATE() > DATE_ADD(reservation.request_date, INTERVAL 1 WEEK));
+		
+        -- upadate expired reservations (from active)
         UPDATE reservation, book_instance
         SET reservation.status = 'expired', book_instance.copies = book_instance.copies+1
-        WHERE (reservation.status = 'pending' AND CURRENT_DATE() > DATE_ADD(reservation.request_date, INTERVAL 1 WEEK))
-			OR (reservation.status = 'active' AND CURRENT_DATE() > DATE_ADD(reservation.reserve_date, INTERVAL 1 WEEK));
+        WHERE (reservation.status = 'active' AND CURRENT_DATE() > DATE_ADD(reservation.reserve_date, INTERVAL 1 WEEK));
       END |
 
 DELIMITER ;

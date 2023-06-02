@@ -47,17 +47,20 @@
               <p class="lead"> {{ summary }}</p>
             </div>
               <div class="d-flex">
-                  <button class="btn btn-outline-dark flex-shrink-0" type="button">
+                <form action={{ url_for('member_views.reserve_book_button', id=id, bookid=bookid) }} method="POST">
+                  <button type="submit" class="btn btn-outline-dark flex-shrink-0" type="button">
                       <i class='fa fa-book teal-color'></i>
                       Reserve Now
                   </button>
+                  <!-- <input class="btn btn-outline-dark flex-shrink-0" type="submit" value="Resevation Request"> -->
+                </form>
               </div>
               <div class="d-flex">
                 <button class="btn btn-outline-dark flex-shrink-0" onclick="openPopup()" type="button">
                   <i class="bi bi-star"></i>
                     Make Review
                 </button>
-            
+                  
             </div>
           </div>
       </div>
@@ -89,7 +92,7 @@
             cursor: pointer;
           }
         </style>
-        <form action="/submit_review" method="POST">
+        <form action={{ url_for('member_views.make_review', id=id, bookid=bookid) }} method="POST">
           <label for="stars">Number of stars:</label>
           <select id="stars" name="stars">
             <option value="1">1 star</option>

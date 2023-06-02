@@ -3,9 +3,222 @@
 {% block title %} Member My Reviews {% endblock %}
 
 {% block content %}
-  <h1>
-    This is the lib{{id}}/member/my_reviews page!
-  </h1>
+<form method="POST">
+  <h3 align="center"> Member Sign Up for library {{id}} </h3>
+  
+  <div class="form-group">
+    <label for="name"> Full Name </label>
+    <input
+    type="text"
+    class="form-control"
+    id="name"
+    name="name"
+    placeholder="Enter Full Name"
+    />
+  </div>
 
+  <div class="form-group">
+    <label for="birth_date"> Birth date </label>
+    <input
+    type="date"
+    class="form-control"
+    id="birth_date"
+    name="birth_date"
+    placeholder="Enter Birth Date"
+    />
+  </div>
+
+  <div class="form-group">
+    <label for="username"> Username </label>
+    <input
+    type="text"
+    class="form-control"
+    id="username"
+    name="username"
+    placeholder="Enter Username"
+    />
+  </div>
+
+  <div class="form-group">
+    <label for="password"> Password </label>
+    <input
+    type="password"
+    class="form-control"
+    id="password"
+    name="password"
+    placeholder="Enter Password"
+    />
+  </div>
+
+  <div class="form-group">
+    <label for="password2"> Password (validation) </label>
+    <input
+    type="password"
+    class="form-control"
+    id="password2"
+    name="password2"
+    placeholder="Enter Password (again)"
+    />
+  </div>
+
+  <div class="form-group">
+    <label for="role"> Role </label>
+    <select class="form-control" id="role" name="role">
+      <option value="member-student"> Member (student) </option>
+      <option value="member-teacher"> Member (teacher) </option>
+    </select>
+  </div>
+
+  <br />
+  
+  <button type="submit" class="btn btn-primary">Sign Up</button>
+</form>
+
+
+<!-- INACTIVE MEMBERS -->
+<ul class="list-group list-group-flush" id="manager_inactive_members">
+  <h3 align="center">Inactive Members</h3>
+  {% for member in inactive_members %}
+  <li class="list-group-item">
+    <h2>Enter your review here!</h2>
+      <style>
+        /* Styles for the pop-up window */
+        .popup {
+          position: fixed;
+          top: 50%;
+          left: 50%;
+          transform: translate(-50%, -50%);
+          width: 600px;
+          background-color: #f5f5f5;
+          padding: 20px;
+          border-radius: 5px;
+          box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+          z-index: 9999;
+        }
+        .popup h2 {
+          margin-top: 0;
+        }
+        .popup input[type="submit"] {
+          background-color: #4CAF50;
+          color: white;
+          padding: 10px 20px;
+          border: none;
+          border-radius: 5px;
+          cursor: pointer;
+        }
+      </style>
+      <form action="/submit_review" method="POST">
+        <label for="stars">Number of stars:</label>
+        <select id="stars" name="stars">
+          <option value="1">1 star</option>
+          <option value="2">2 stars</option>
+          <option value="3">3 stars</option>
+          <option value="4">4 stars</option>
+          <option value="5">5 stars</option>
+        </select>
+        <br><br>
+        <label for="reviewText">Review:</label>
+        <textarea id="reviewText" name="reviewText" rows="4" cols="50"></textarea>
+        <br><br>
+        <input type="submit" value="Submit Review">
+      </form>
+  </li>
+  {% endfor %}
+</ul>
+
+<!-- ACTIVE MEMBERS -->
+<ul class="list-group list-group-flush" id="manager_active_members">
+  <h3 align="center">Active Members</h3>
+  <li class="list-group-item">
+    <h2>Enter your review here!</h2>
+      <style>
+        /* Styles for the pop-up window */
+        .popup {
+          position: fixed;
+          top: 50%;
+          left: 50%;
+          transform: translate(-50%, -50%);
+          width: 600px;
+          background-color: #f5f5f5;
+          padding: 20px;
+          border-radius: 5px;
+          box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+          z-index: 9999;
+        }
+        .popup h2 {
+          margin-top: 0;
+        }
+        .popup input[type="submit"] {
+          background-color: #4CAF50;
+          color: white;
+          padding: 10px 20px;
+          border: none;
+          border-radius: 5px;
+          cursor: pointer;
+        }
+      </style>
+      <form action="/submit_review" method="POST">
+        <label for="stars">Number of stars:</label>
+        <select id="stars" name="stars" disabled>
+          <option value="1">1 star</option>
+          <option value="2">2 stars</option>
+          <option value="3">3 stars</option>
+          <option value="4">4 stars</option>
+          <option value="5">5 stars</option>
+        </select>
+        <br><br>
+        <label for="reviewText">Review:</label>
+        <textarea id="reviewText" name="reviewText" rows="4" cols="50" readonly>fsd fasfsdfsda</textarea>
+        <br><br>
+        <input type="submit" value="Submit Review">
+      </form>
+  </li>
+  {% for member in active_members %}
+  <li class="list-group-item">
+    <h2>Enter your review here!</h2>
+      <style>
+        /* Styles for the pop-up window */
+        .popup {
+          position: fixed;
+          top: 50%;
+          left: 50%;
+          transform: translate(-50%, -50%);
+          width: 600px;
+          background-color: #f5f5f5;
+          padding: 20px;
+          border-radius: 5px;
+          box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+          z-index: 9999;
+        }
+        .popup h2 {
+          margin-top: 0;
+        }
+        .popup input[type="submit"] {
+          background-color: #4CAF50;
+          color: white;
+          padding: 10px 20px;
+          border: none;
+          border-radius: 5px;
+          cursor: pointer;
+        }
+      </style>
+      <form action="/submit_review" method="POST">
+        <label for="stars">Number of stars:</label>
+        <select id="stars" name="stars" disabled>
+          <option value="1">1 star</option>
+          <option value="2">2 stars</option>
+          <option value="3">3 stars</option>
+          <option value="4">4 stars</option>
+          <option value="5">5 stars</option>
+        </select>
+        <br><br>
+        <label for="reviewText">Review:</label>
+        <textarea id="reviewText" name="reviewText" rows="4" cols="50" readonly>fsafas</textarea>
+        <br><br>
+        <input type="submit" value="Submit Review" readonly>
+      </form>
+  </li>
+  {% endfor %}
+</ul>
   
 {% endblock %}

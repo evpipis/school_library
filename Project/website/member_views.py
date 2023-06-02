@@ -123,7 +123,7 @@ def books(id):
 
 ### preview views
 
-@member_views.route('/lib<id>/member/book<bookid>',methods=['GET',"POST"])
+@member_views.route('/lib<id>/member/book<bookid>',methods=['GET'])
 @library_exists
 @member_required
 def preview(id, bookid):
@@ -173,6 +173,145 @@ def preview(id, bookid):
     return render_template("member_preview.html", view='member', id=id
                            , bookid=bookid ,title=title[0], isbn=isbn[0]
                            , authors=authors, categories=categories, summary=summary[0])
+
+@member_views.route('/lib<id>/member/book<bookid>/make_review',methods=['POST'])
+@library_exists
+@member_required
+def make_review(id, bookid):
+    stars = request.form.get('stars')
+    review_text = request.form.get('reviewText')
+
+    cur = mydb.connection.cursor()
+
+    user_id = session.get('id')
+    approved = not(session.get('role') == 'member-student')
+    print(approved)
+
+    cur.execute('''
+        INSERT INTO review (user_id , book_id, opinion, stars, is_active)
+        VALUES (%s, %s, %s, %s, %s);''', 
+        (user_id, bookid, review_text, stars, approved)
+    )
+    mydb.connection.commit()
+    flash('Your review was submitted successfully!', category='success')
+    return redirect(url_for('member_views.preview', id=id, bookid=bookid))
+
+@member_views.route('/lib<id>/member/book<bookid>/reserve_book', methods = ['POST'])
+@library_exists
+@member_required
+def reserve_book_button(id, bookid):
+    print("inside here!!!!")
+    ##### taking book_title and member_username for simplicity in testing
+    ##### change that to book_isbn and member_id
+    book_id = int(bookid)
+    member_id = int(session['id'])
+    member_role = session['role']
+
+    cur = mydb.connection.cursor()
+    cur.execute(f'''
+        SELECT *
+        FROM borrowing
+        WHERE user_id = {member_id} AND status = 'delayed';
+    ''')
+    mydb.connection.commit()
+    delayed_borrowing = cur.fetchall()
+
+    cur.execute(f'''
+        SELECT *
+        FROM reservation
+        WHERE user_id = {member_id} AND CURRENT_DATE() <= DATE_ADD(request_date, INTERVAL 1 WEEK);
+    ''')
+    mydb.connection.commit()
+    last_week_reservations = cur.fetchall()
+    
+    cur.execute(f'''
+        SELECT *
+        FROM book_instance
+        WHERE book_id = {book_id} AND school_id = {id};
+    ''')
+    mydb.connection.commit()
+    book_instance_exists = cur.fetchall()
+
+    cur.execute(f'''
+        SELECT *
+        FROM borrowing
+        WHERE user_id = {member_id} AND book_id = {book_id} AND (status = 'active' OR status = 'delayed');
+    ''')
+    mydb.connection.commit()
+    same_book_borrowed = cur.fetchall()
+
+    cur.execute(f'''
+        SELECT *
+        FROM reservation
+        WHERE user_id = {member_id} AND book_id = {book_id} AND (status = 'active' OR status = 'pending');
+    ''')
+    mydb.connection.commit()
+    same_book_reserved = cur.fetchall()
+
+    cur.execute(f'''
+        SELECT copies
+        FROM book_instance
+        INNER JOIN book_title
+        ON book_title.id = book_instance.book_id
+        WHERE book_instance.school_id = {id} AND book_title.id = {book_id};
+    ''')
+    mydb.connection.commit()
+    book_copies = cur.fetchall()
+    print(book_copies)
+
+    cur.close()
+    
+    if delayed_borrowing:
+        flash('Member has a delayed borrowing.', category='error')
+    elif member_role == 'member-student' and len(last_week_reservations) >= 2:
+        flash('Member (student) has already requested/reserved two books this week.', category='error')
+    elif member_role == 'member-teacher' and len(last_week_reservations) >= 1:
+        flash('Member (teacher) has already requested/reserved one book this week.', category='error')
+    elif not book_instance_exists:
+        flash('Book instance does not exist in the library.', category='error')
+    elif same_book_borrowed:
+        flash('Same book is already borrowed to member.', category='error')
+    elif same_book_reserved:
+        flash('Same book is already requested/reserved to member.', category='error')
+    else:
+        # there are currently no book copies available
+        if book_copies[0][0] == 0:
+            cur = mydb.connection.cursor()
+            # insert the new reservation with pending status
+            cur.execute(f'''
+                INSERT INTO reservation
+                    (user_id, book_id, status, request_date, reserve_date)
+                VALUES
+                    ({member_id}, {book_id}, 'pending', CURRENT_DATE(), NULL)
+                ;
+            ''')
+            mydb.connection.commit()
+            cur.close()
+            flash('Book reservation was requested successfully. Your reservation will be activated when there will be availability.', category='success')
+        # there is currently availability
+        else:
+            cur = mydb.connection.cursor()
+            # subtract one copy
+            cur.execute(f'''
+                UPDATE book_instance
+                SET copies = copies-1
+                WHERE book_id = {book_id} AND school_id = {id};
+            ''')
+            mydb.connection.commit()
+            
+            # insert the new borrow
+            cur.execute(f'''
+                INSERT INTO reservation
+                    (user_id, book_id, status, request_date, reserve_date)
+                VALUES
+                    ({member_id}, {book_id}, 'active', CURRENT_DATE(), CURRENT_DATE())
+                ;
+            ''')
+            mydb.connection.commit()
+            cur.close()
+            flash('Book was reserved successfully.', category='success')
+
+    return redirect(url_for('member_views.preview', id=id, bookid=bookid))
 
 ### my_borrowings views
 
