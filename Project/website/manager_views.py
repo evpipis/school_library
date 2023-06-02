@@ -738,7 +738,7 @@ def return_book(id):
 def reviews(id):
     cur = mydb.connection.cursor()
     cur.execute(f'''
-        SELECT book_title.title, book_title.isbn, user.username, user.id, review.stars, review.opinion
+        SELECT book_title.title, book_title.isbn, user.username, user.id, review.stars, review.opinion, review.id
         FROM review
         INNER JOIN book_title
         ON review.book_id = book_title.id
@@ -749,7 +749,7 @@ def reviews(id):
     inactive_reviews_rec = cur.fetchall()
 
     cur.execute(f'''
-        SELECT book_title.title, book_title.isbn, user.username, user.id, review.stars, review.opinion
+        SELECT book_title.title, book_title.isbn, user.username, user.id, review.stars, review.opinion, review.id
         FROM review
         INNER JOIN book_title
         ON review.book_id = book_title.id
@@ -762,14 +762,58 @@ def reviews(id):
 
     inactive_reviews = list()
     for row in inactive_reviews_rec:
-        inactive_reviews.append({'title': row[0], 'isbn': row[1], 'username': row[2], 'user_id': row[3], 'stars': row[4], 'opinion': row[5]})
+        inactive_reviews.append({'title': row[0], 'isbn': row[1], 'username': row[2], 'user_id': row[3], 'stars': row[4], 'opinion': row[5], 'id': row[6]})
     active_reviews = list()
     for row in active_reviews_rec:
-        active_reviews.append({'title': row[0], 'isbn': row[1], 'username': row[2], 'user_id': row[3], 'stars': row[4], 'opinion': row[5]})
+        active_reviews.append({'title': row[0], 'isbn': row[1], 'username': row[2], 'user_id': row[3], 'stars': row[4], 'opinion': row[5], 'id': row[6]})
 
     return render_template("manager_reviews.html", view='member', id=id
                            , inactive_reviews=inactive_reviews
                            , active_reviews=active_reviews)
+
+@manager_views.route('/lib<id>/manager/reviews/switch_activation', methods=['POST'])
+@library_exists
+@manager_required
+def switch_activation_review(id):
+    print("inside switch activation review")
+    record = json.loads(request.data)
+    review_id = record['review_id']
+    try:
+        cur = mydb.connection.cursor()
+        cur.execute(f'''
+            UPDATE review
+            SET is_active = NOT is_active
+            WHERE id = {int(review_id)};
+        ''')
+        mydb.connection.commit()
+        cur.close()
+        flash('Activation status changed successfully.', category='success')
+    except Exception as e:
+        flash(str(e), category='error')
+        print(str(e))
+
+    return jsonify({})
+
+@manager_views.route('/lib<id>/manager/reviews/delete_review', methods=['POST'])
+@library_exists
+@manager_required
+def delete_review(id):
+    record = json.loads(request.data)
+    review_id = record['review_id']
+    try:
+        cur = mydb.connection.cursor()
+        cur.execute(f'''
+            DELETE FROM review
+            WHERE id = {int(review_id)}; 
+        ''')
+        mydb.connection.commit()
+        cur.close()
+        flash('Review deleted successfully.', category='success')
+    except Exception as e:
+        flash(str(e), category='error')
+        print(str(e))
+
+    return jsonify({})
 
 ### settings views
 

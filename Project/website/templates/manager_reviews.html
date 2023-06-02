@@ -20,6 +20,12 @@
         {{review.opinion}}
       </textarea>
     </form>
+    <button type="button" class="close" onclick="switchActivation({{review.id}})">
+      <span aria-hidden="true">activate</span>
+    </button>
+    <button type="button" class="close" onclick="deleteReview({{review.id}})">
+      <span aria-hidden="true">delete&nbsp&nbsp</span>
+    </button>
   </li>
   {% endfor %}
 </ul>
@@ -41,8 +47,34 @@
         {{review.opinion}}
       </textarea>
     </form>
+    <button type="button" class="close" onclick="switchActivation({{review.id}})">
+      <span aria-hidden="true">deactivate</span>
+    </button>
+    <button type="button" class="close" onclick="deleteReview({{review.id}})">
+      <span aria-hidden="true">delete&nbsp&nbsp</span>
+    </button>
   </li>
   {% endfor %}
 </ul>
+
+<script type="text/javascript">
+  function switchActivation(review_id) {
+      fetch("/lib{{id}}/manager/reviews/switch_activation", {
+          method: "POST",
+          body: JSON.stringify({ review_id: review_id }),
+      }).then((_res) => {
+          window.location.href = "/lib{{id}}/manager/reviews";
+      });
+  }
+  
+  function deleteReview(review_id) {
+      fetch("/lib{{id}}/manager/reviews/delete_review", {
+          method: "POST",
+          body: JSON.stringify({ review_id: review_id }),
+      }).then((_res) => {
+          window.location.href = "/lib{{id}}/manager/reviews";
+      });
+  }
+</script>
   
 {% endblock %}
