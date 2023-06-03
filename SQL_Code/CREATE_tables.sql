@@ -149,6 +149,8 @@ create table reservation
     foreign key (book_id) references book_title(id)
 );
 
+create table Disabled_Triggers (TriggerName varchar(500) not null);
+
 DELIMITER //
 DROP TRIGGER IF EXISTS activateReservationOnUpdate//
 -- this activates pending reservation when the requested book_instance becomes available
@@ -156,7 +158,9 @@ DROP TRIGGER IF EXISTS activateReservationOnUpdate//
 CREATE TRIGGER activateReservationOnUpdate BEFORE UPDATE ON book_instance FOR EACH ROW
 BEGIN
 	-- add copies one by one in the database
-	WHILE NEW.copies > 0 AND EXISTS (
+	WHILE NEW.copies > 0
+		AND NOT EXISTS (SELECT 1 FROM Disabled_Triggers where TriggerName = 'activateReservationOnUpdate')
+		AND EXISTS (
 		SELECT * FROM reservation
         INNER JOIN user
         ON reservation.user_id = user.id
@@ -214,7 +218,7 @@ CREATE EVENT e_daily
       EVERY 1 DAY
     DO
       BEGIN
-		-- update dalyed borrowings
+		-- update dalayed borrowings
 		UPDATE borrowing
         SET borrowing.status = 'delayed'
         WHERE borrowing.status = 'active' AND CURRENT_DATE() > DATE_ADD(borrowing.borrow_date, INTERVAL 1 WEEK);
@@ -224,10 +228,28 @@ CREATE EVENT e_daily
         SET reservation.status = 'expired'
         WHERE (reservation.status = 'pending' AND CURRENT_DATE() > DATE_ADD(reservation.request_date, INTERVAL 1 WEEK));
 		
+        -- temporarly disable trigger
+        Insert into Disabled_Triggers(TriggerName) values ('activateReservationOnUpdate');
+		
         -- upadate expired reservations (from active)
-        UPDATE reservation, book_instance
+        UPDATE book_instance
+        INNER JOIN user
+        ON book_instance.school_id = user.school_id
+        INNER JOIN (SELECT * FROM reservation) res
+        ON user.id = res.user_id
         SET reservation.status = 'expired', book_instance.copies = book_instance.copies+1
-        WHERE (reservation.status = 'active' AND CURRENT_DATE() > DATE_ADD(reservation.reserve_date, INTERVAL 1 WEEK));
+        WHERE (res.status = 'active' AND CURRENT_DATE() > DATE_ADD(res.reserve_date, INTERVAL 1 WEEK));
+        
+        UPDATE reservation
+		SET reservation.status = 'expired'
+		WHERE (reservation.status = 'active' AND CURRENT_DATE() > DATE_ADD(reservation.reserve_date, INTERVAL 1 WEEK));
+        
+        -- enable trigger again
+        DELETE FROM Disabled_Triggers WHERE TriggerName='activateReservationOnUpdate';
+        
+        -- run triggers in case i missed something
+        UPDATE book_instance
+        SET book_instance.copies = book_instance.copies-1+1;
       END |
 
 DELIMITER ;
