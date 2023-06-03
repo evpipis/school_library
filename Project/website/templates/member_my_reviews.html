@@ -3,12 +3,14 @@
 {% block title %} Member My Reviews {% endblock %}
 
 {% block content %}
+<br></br>
+
 <!-- MY INACTIVE REVIEWS -->
 <ul class="list-group list-group-flush" id="member_my_inactive_reviews">
   <h3 align="center">My Inactive Reviews</h3>
   {% for review in my_inactive_reviews %}
   <li class="list-group-item">
-    Review for {{review.title}} ({{review.isbn}}) by {{review.username}} ({{review.user_id}})
+    <h5> Review for {{review.title}} ({{review.isbn}}) by {{review.username}} ({{review.user_id}}) </h5>
     <form method="POST">
       <label for="stars">Number of stars:</label>
       <select id="stars" name="stars" disabled>
@@ -16,20 +18,22 @@
       </select>
       <br><br>
       <label for="reviewText">Review:</label>
-      <textarea id="reviewText" name="reviewText" rows="4" cols="50" readonly>
+      <textarea id="reviewText" name="reviewText" rows="2" cols="80" readonly>
         {{review.opinion}}
       </textarea>
     </form>
   </li>
   {% endfor %}
 </ul>
+
+<br></br>
 
 <!-- MY ACTIVE REVIEWS -->
 <ul class="list-group list-group-flush" id="member_my_active_reviews">
   <h3 align="center">My Active Reviews</h3>
   {% for review in my_active_reviews %}
   <li class="list-group-item">
-    Review for {{review.title}} ({{review.isbn}}) by {{review.username}} ({{review.user_id}})
+    <h5> Review for {{review.title}} ({{review.isbn}}) by {{review.username}} ({{review.user_id}})</h5>
     <form method="POST">
       <label for="stars">Number of stars:</label>
       <select id="stars" name="stars" disabled>
@@ -37,7 +41,7 @@
       </select>
       <br><br>
       <label for="reviewText">Review:</label>
-      <textarea id="reviewText" name="reviewText" rows="4" cols="50" readonly>
+      <textarea id="reviewText" name="reviewText" rows="2" cols="80" readonly>
         {{review.opinion}}
       </textarea>
     </form>
@@ -45,12 +49,14 @@
   {% endfor %}
 </ul>
 
-<!-- MY INACTIVE REVIEWS -->
-<ul class="list-group list-group-flush" id="member_my_inactive_reviews">
+<br></br>
+
+<!-- ALL ACTIVE REVIEWS -->
+<ul class="list-group list-group-flush" id="all_active_reviews">
   <h3 align="center">All Active Reviews</h3>
   {% for review in active_reviews %}
   <li class="list-group-item">
-    Review for {{review.title}} ({{review.isbn}}) by {{review.username}} ({{review.user_id}})
+    <h5>Review for {{review.title}} ({{review.isbn}}) by {{review.username}} ({{review.user_id}})</h5>
     <form method="POST">
       <label for="stars">Number of stars:</label>
       <select id="stars" name="stars" disabled>
@@ -58,7 +64,7 @@
       </select>
       <br><br>
       <label for="reviewText">Review:</label>
-      <textarea id="reviewText" name="reviewText" rows="4" cols="50" readonly>
+      <textarea id="reviewText" name="reviewText" rows="2" cols="80" readonly>
         {{review.opinion}}
       </textarea>
     </form>

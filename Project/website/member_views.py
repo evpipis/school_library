@@ -665,10 +665,12 @@ def my_reviews(id):
 
     cur = mydb.connection.cursor()
     cur.execute(f'''
-        SELECT book_title.title, book_title.isbn, review.stars, review.opinion
+        SELECT book_title.title, book_title.isbn, review.stars, review.opinion, user.username, user.id
         FROM review
         INNER JOIN book_title
         ON review.book_id = book_title.id
+        INNER JOIN user
+        ON user.id = review.user_id
         WHERE review.is_active = TRUE;
     ''')
     active_reviews_rec = cur.fetchall()
@@ -682,7 +684,7 @@ def my_reviews(id):
         my_active_reviews.append({'title': row[0], 'isbn': row[1], 'username': user_username, 'user_id': user_id, 'stars': row[2], 'opinion': row[3]})
     active_reviews = list()
     for row in active_reviews_rec:
-        active_reviews.append({'title': row[0], 'isbn': row[1], 'username': user_username, 'user_id': user_id, 'stars': row[2], 'opinion': row[3]})
+        active_reviews.append({'title': row[0], 'isbn': row[1], 'username': row[4], 'user_id': row[5], 'stars': row[2], 'opinion': row[3]})
     
 
     return render_template("member_my_reviews.html", view='member', id=id
