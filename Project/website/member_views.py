@@ -117,6 +117,7 @@ def books(id):
         WHERE book_instance.school_id = {id};
     ''')
     lib_books = cur.fetchall()
+    print(lib_books)
     cur.close()
 
     return render_template("member_books.html", view='member', id=id, schoolname = schoolname[0], lib_books = lib_books)
@@ -135,6 +136,7 @@ def preview(id, bookid):
         WHERE book_title.id = {bookid};
     ''')
     title = cur.fetchone()
+    print(title)
 
     cur.execute(f'''
         SELECT isbn 
@@ -168,11 +170,28 @@ def preview(id, bookid):
         WHERE book_title.id = {bookid};
     ''')
     summary = [row[0] for row in cur.fetchall()]
+
+    cur.execute(f'''
+                CALL total_reservations({session.get('id')}) ;
+                ''')
+    reservations = len(cur.fetchall())
+    if (session.get('role') == 'member-student' and reservations < 2):
+        allow = True
+    elif (reservations < 1):
+        allow = True
+    else :
+        allow = False
     
+    cur.execute(f'''
+                CALL is_reserved ({session.get('id')}, {bookid}) ;
+                ''')
+    reserved = (cur.fetchall() != () )
+
     cur.close()
     return render_template("member_preview.html", view='member', id=id
                            , bookid=bookid ,title=title[0], isbn=isbn[0]
-                           , authors=authors, categories=categories, summary=summary[0])
+                           , authors=authors, categories=categories, summary=summary[0], 
+                            reserved = reserved)
 
 @member_views.route('/lib<id>/member/book<bookid>/make_review',methods=['POST'])
 @library_exists

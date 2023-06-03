@@ -70,26 +70,20 @@ def books(id):
 
         if (filter == 'title'):
             cur.execute (f'''
-                SELECT title, copies, book_title.id
-                FROM book_title INNER JOIN book_instance ON book_title.id = book_instance.book_id 
-                WHERE book_instance.school_id = {id} AND book_title.title = '{keyword}';
+                CALL filter_title({id},'{keyword}');
             ''')
         if (filter == 'category'):
             cur.execute (f'''
-                SELECT BT1.title, BI1.copies, BT1.id
-                FROM book_title AS BT1 INNER JOIN book_instance AS BI1 ON BT1.id = BI1.book_id 
-                INNER JOIN book_categories AS BC ON BC.book_id = BI1.book_id
-                INNER JOIN categories AS C ON C.id = BC.category_id
-                WHERE BI1.school_id = {id} AND C.category = '{keyword}';
+            CALL filter_category({id},'{keyword}');
             ''')
         if (filter == 'author'):
             cur.execute(f'''
-                SELECT BT1.title, BI1.copies, BT1.id
-                FROM book_title AS BT1 INNER JOIN book_instance AS BI1 ON BT1.id = BI1.book_id 
-                INNER JOIN book_authors AS BA ON BA.book_id = BI1.book_id
-                INNER JOIN authors AS A ON A.id = BA.author_id
-                WHERE BI1.school_id = {id} AND A.author = '{keyword}';
+            CALL filter_author ({id},'{keyword}');
             ''')
+        if (filter == 'copies'):
+            cur.execute(f'''
+                        CALL filter_copies ({id}, '{keyword}');
+                        ''')
 
         selected_books = cur.fetchall()
         cur.close()
@@ -169,19 +163,19 @@ def add_book(id):
                 ''')
                 bookid = cur.fetchone()
                 
-                # for author in authors.split(','):
-                #     cur.execute(f'''
-                #     CALL revise_authors('{author}',{bookid[0]})
-                # ''')
+                for author in authors.split(','):
+                     cur.execute(f'''
+                     CALL revise_authors('{author}',{bookid[0]})
+                 ''')
 
-                # for category in categories.split(','):
-                #     cur.execute(f'''
-                #     CALL revise_categories('{category}',{bookid[0]})
-                # ''')
+                for category in categories.split(','):
+                     cur.execute(f'''
+                     CALL revise_categories('{category}',{bookid[0]})
+                 ''')
                 
-                # for keyword in keywords.split(','):
-                # cur.execute(f'''
-                # CALL revise_keywords('{keyword}',{bookid[0]})''')  
+                for keyword in keywords.split(','):
+                 cur.execute(f'''
+                 CALL revise_keywords('{keyword}',{bookid[0]})''')  
     
                 cur.execute('''
                     INSERT INTO book_instance

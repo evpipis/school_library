@@ -272,3 +272,115 @@ def change_password():
             print(str(e))
 
     return redirect(url_for('admin_views.settings'))
+
+
+@admin_views.route('/admin/statistics', methods=['GET', 'POST'])
+@admin_required
+def statistics():
+    cur = mydb.connection.cursor()
+
+    cur.execute(f'''
+                CALL young_teachers_book_worms () ;
+                ''')
+    book_worms = cur.fetchall()
+
+    cur.execute(f'''
+                CALL authors_with_zero_borrows() ;
+                ''')
+    unfamous_authors = [row[1] for row in cur.fetchall()]
+
+    cur.execute(f'''
+                CALL equal_lends () ;
+                ''')
+    equ_managers =  cur.fetchall()
+
+    cur.execute(f'''
+                CALL top_pairs() ;
+                ''')
+    top_pairs = cur.fetchall()
+
+    cur.close() 
+    return render_template("admin_statistics.html",view='admin')
+
+@admin_views.route('/admin/managers/operation_1', methods=['POST'])
+@admin_required
+def operation_1():
+    cur = mydb.connection.cursor()
+
+    cur.close()
+    return
+
+
+@admin_views.route('/admin/managers/operation_2', methods=['POST'])
+@admin_required
+def operation_2():
+    cur = mydb.connection.cursor()
+
+    cur.close()
+    return
+
+
+@admin_views.route('/admin/managers/operation_3', methods=['POST'])
+@admin_required
+def operation_3():
+    cur = mydb.connection.cursor()
+
+    cur.execute(f'''
+                CALL young_teachers_book_worms () ;
+                ''')
+    book_worms = cur.fetchall()
+    cur.close()
+    return
+
+@admin_views.route('/admin/managers/operation_4', methods=['POST'])
+@admin_required
+def operation_4():
+    cur = mydb.connection.cursor()
+
+    cur.execute(f'''
+                CALL authors_with_zero_borrows() ;
+                ''')
+    unfamous_authors = [row[1] for row in cur.fetchall()]
+
+    cur.close()
+    return
+
+@admin_views.route('/admin/managers/operation_5', methods=['POST'])
+@admin_required
+def operation_5():
+    cur = mydb.connection.cursor()
+
+    cur.execute(f'''
+                CALL equal_lends () ;
+                ''')
+    equ_managers =  cur.fetchall()
+
+    cur.close()
+    return
+
+@admin_views.route('/admin/managers/operation_6', methods=['POST'])
+@admin_required
+def operation_6():
+    cur = mydb.connection.cursor()
+
+    cur.execute(f'''
+                CALL top_pairs() ;
+                ''')
+    top_pairs = cur.fetchall()
+
+    cur.close()
+    return
+
+@admin_views.route('/admin/managers/operation_7', methods=['POST'])
+@admin_required
+def operation_7():
+    cur = mydb.connection.cursor()
+
+    cur.execute(f'''
+                CALL authors_below_top() ;
+                ''')
+    upcoming_authors = cur.fetchall()
+
+    cur.close()
+    return
+

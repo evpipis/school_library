@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+
+{% block title %} Admin Statistics {% endblock %}
+
+{% block content %}
+  <h1>
+    This is the admin/statistics page! Admin can do any related operations here.
+  </h1>
+
+  <li class="list-group-item">
+   Total borrows per school in : (specify month & year)
+    <button type="button" class="close" onclick="operation_1()">
+      <span aria-hidden="true">view</span>
+    </button>
+  </li>
+  <br>
+  <br>
+
+  <li class="list-group-item">
+   All authors related to category : (specify category)
+     <button type="button" class="close" onclick="operation_2()">
+       <span aria-hidden="true">view</span>
+     </button>
+   </li>
+   <br>
+   <br>
+
+   <li class="list-group-item">
+    All teachers having borrowd from above category in the last year : 
+      <button type="button" class="close" onclick="operation_2()">
+        <span aria-hidden="true">view</span>
+      </button>
+    </li>
+    <br>
+    <br>
+
+   <li class="list-group-item">
+    Young Teachers ( < 40 ) with most borrows :
+    <button type="button" class="close" onclick="operation_3()">
+      <span aria-hidden="true">view</span>
+    </button>
+  </li>
+  <br>
+  <br>
+
+  <li class="list-group-item">
+   Authors with zero number of borrows so far :
+    <button type="button" class="close" onclick="operation_4()">
+      <span aria-hidden="true">view</span>
+    </button>
+  </li>
+  <div>
+    {% for author in unfamous_authors %}
+    <p>{{ author }}</p>
+    {% endfor %}
+  </div>
+  <br>
+  <br>
+
+  <li class="list-group-item">
+   Managers who lend same number of books in the last year ( with over 20 lends ) :
+    <button type="button" class="close" onclick="operation_5()">
+      <span aria-hidden="true">view</span>
+    </button>
+  </li>
+  <br>
+  <br>
+
+  <li class="list-group-item">
+   Top 5 category pairs encountered together in borrowing list :
+    <button type="button" class="close" onclick="operation_6()">
+      <span aria-hidden="true">view</span>
+    </button>
+  </li>
+  <br>
+  <br>
+
+  <li class="list-group-item">
+   Authors having written less than five ( ≤ 5) books from the author with most written books :
+    <button type="button" class="close" onclick="operation_7()">
+      <span aria-hidden="true">view</span>
+    </button>
+  </li>
+  <br>
+  <br>
+
+  {% endblock %}
+
