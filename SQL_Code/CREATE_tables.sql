@@ -235,10 +235,11 @@ CREATE EVENT e_daily
         UPDATE book_instance
         INNER JOIN user
         ON book_instance.school_id = user.school_id
-        INNER JOIN (SELECT * FROM reservation) res
-        ON user.id = res.user_id
+        INNER JOIN reservation
+        ON user.id = reservation.user_id
         SET reservation.status = 'expired', book_instance.copies = book_instance.copies+1
-        WHERE (res.status = 'active' AND CURRENT_DATE() > DATE_ADD(res.reserve_date, INTERVAL 1 WEEK));
+        WHERE (reservation.status = 'active' AND CURRENT_DATE() > DATE_ADD(reservation.reserve_date, INTERVAL 1 WEEK))
+			AND reservation.book_id = book_instance.book_id;
         
         UPDATE reservation
 		SET reservation.status = 'expired'
@@ -249,7 +250,7 @@ CREATE EVENT e_daily
         
         -- run triggers in case i missed something
         UPDATE book_instance
-        SET book_instance.copies = book_instance.copies-1+1;
+        SET book_instance.copies = book_instance.copies;
       END |
 
 DELIMITER ;

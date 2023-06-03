@@ -52,10 +52,11 @@ def insert_dummy_data():
             UPDATE book_instance
             INNER JOIN user
             ON book_instance.school_id = user.school_id
-            INNER JOIN (SELECT * FROM reservation) res
-            ON user.id = res.user_id
-            SET book_instance.copies = book_instance.copies+1
-            WHERE (res.status = 'active' AND CURRENT_DATE() > DATE_ADD(res.reserve_date, INTERVAL 1 WEEK));
+            INNER JOIN reservation
+            ON user.id = reservation.user_id
+            SET reservation.status = 'expired', book_instance.copies = book_instance.copies+1
+            WHERE (reservation.status = 'active' AND CURRENT_DATE() > DATE_ADD(reservation.reserve_date, INTERVAL 1 WEEK))
+                AND reservation.book_id = book_instance.book_id;
         ''')
         cur.execute(f'''
             UPDATE reservation
@@ -67,7 +68,7 @@ def insert_dummy_data():
         ''')
         cur.execute(f'''
             UPDATE book_instance
-            SET book_instance.copies = book_instance.copies-1+1;
+            SET book_instance.copies = book_instance.copies;
         ''')
         mydb.connection.commit()
         cur.close()
