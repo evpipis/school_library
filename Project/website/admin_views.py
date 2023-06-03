@@ -2,6 +2,7 @@ from flask import Blueprint, render_template, request, flash, redirect, url_for,
 from functools import wraps
 from . import mydb
 import json
+import subprocess
 
 admin_views = Blueprint('admin_views', __name__)
 
@@ -273,6 +274,56 @@ def change_password():
 
     return redirect(url_for('admin_views.settings'))
 
+@admin_views.route('/admin/settings/backup', methods = ['POST'])
+@admin_required
+def backup():
+    # Specify the MySQL database credentials
+    from . import config
+    print(config.mysql_exe_path)
+
+    # Define the command to create a backup
+    command = config.mysqldump_exe_path + f' -u {config.mysql_user} -p{config.mysql_password} {config.mysql_db} > {config.backup_file_path}'
+    print(command)
+
+    # subprocess.run(command, shell=True, check=True)
+    try:
+        # Execute the command
+        subprocess.run(command, shell=True, check=True)
+        flash('Database backup created successfully.', category='success')
+    except subprocess.CalledProcessError:
+        flash('Failed to create database backup.', category='error')
+
+    return redirect(url_for('admin_views.settings'))
+
+@admin_views.route('/admin/settings/restore', methods = ['POST'])
+def restore():
+    # Specify the MySQL database credentials
+    from . import config
+
+    # Get the backup file from the request
+    
+    if ('backup_file' in request.files.keys()):
+        backup_file = request.files['backup_file']
+        backup_file.save(config.backup_file_path)
+        flash('Backup file saved as the last stored version.', category='success')
+    else:
+        flash('No backup file uploaded, the last stored version was used.', category='success')
+        
+    # Define the command to restore the database
+    command = config.mysql_exe_path + f' -u {config.mysql_user} -p{config.mysql_password} {config.mysql_db} < {config.backup_file_path}'
+    # command = f'mysql -u {config.mysql_user} -p{config.mysql_password} flask2 < {backup_path}'
+    print(command)
+
+    try:
+    # Execute the command
+        subprocess.run(command, shell=True, check=True)
+        flash('Database restored successfully.', category='success')
+    except subprocess.CalledProcessError:
+        flash('Failed to restore database.', category='error')
+    return redirect(url_for('admin_views.settings'))
+
+
+# statistics views
 
 @admin_views.route('/admin/statistics', methods=['GET', 'POST'])
 @admin_required

@@ -3,6 +3,7 @@
 {% block title %} Admin Settings {% endblock %}
 
 {% block content %}
+<br></br>
 <form action={{ url_for('admin_views.change_info') }} method="POST">
   <h3 align="center"> User Info </h3>
 
@@ -34,7 +35,9 @@
   
 </form>
 
-<form method="POST">
+<br></br>
+
+<form action={{ url_for('admin_views.change_password') }} method="POST">
   <h3 align="center"> Change Password </h3>
 
   <div class="form-group">
@@ -74,4 +77,36 @@
   
   <button type="submit" class="btn btn-primary">Change Password</button>
 </form>
+
+<br></br>
+<!-- action={{ url_for('admin_views.backup') }} -->
+<form action={{ url_for('admin_views.backup') }} method="POST">
+  <h3 align="center"> Backup Database </h3>
+
+  <br />
+  
+  <button type="submit" class="btn btn-primary">Backup</button>
+</form>
+
+<br></br>
+
+<form action={{ url_for('admin_views.restore') }} method="POST">
+  <h3 align="center"> Restore Database </h3>
+
+  <div class="form-group">
+    <label for="backup_file"> Upload Backup File </label>
+    <input
+    type="file"
+    class="form-control"
+    id="backup_file"
+    name="backup_file"
+    />
+  </div>
+
+  <br />
+  
+  <button type="submit" class="btn btn-primary">Restore</button>
+</form>
+
+<br></br>
 {% endblock %}
