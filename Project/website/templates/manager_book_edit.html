@@ -1,0 +1,149 @@
+{% extends "base.html" %}
+
+{% block title %} Book Edit details {% endblock %}
+
+{% block content %}
+
+<h3>This is manager/book_edit page</h3>
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+  <meta name="description" content="" />
+  <meta name="author" content="" />
+  <title>Book Preview - Template</title>
+  <!-- Favicon-->
+  <link rel="icon" type="image/x-icon" href="assets/favicon.ico" />
+  <!-- Bootstrap icons-->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.5.0/font/bootstrap-icons.css" rel="stylesheet" />
+  <link rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css'>                    
+  <!-- Core theme CSS (includes Bootstrap)-->
+  <link href="/static/styleBook.css" rel="stylesheet" />
+</head>
+
+<!-- Product section-->
+<form method = 'POST'>
+<section class="py-5">
+  <div class="container px-4 px-lg-5 my-5">
+      <div class="row gx-4 gx-lg-5 align-items-center">
+    
+          <div class="col-md-6"><img class="card-img-top mb-5 mb-md-0" src=" " alt="..." /></div>
+          <div class="col-md-6">
+            
+              <div class="small mb-1">ISBN: {{ isbn }}</div>
+              <div class="small mb-1">Language ID:
+              <div class="form-group">
+                  <input
+                  type="text"
+                  class="form-control"
+                  id="edit_langid"
+                  name="edit_langid"
+                  value="{{lang_id}}"
+                  />
+                </div>
+              </div>
+
+              
+
+              <div class="small mb-1"> Publisher:
+                <div class="form-group">
+                    <input
+                    type="text"
+                    class="form-control"
+                    id="edit_publisher"
+                    name="edit_publisher"
+                    value="{{ publisher }}"
+                    />
+                  </div>
+              </div>
+
+              <h1 class="display-5 fw-bolder">{{ title }}</h1>
+
+              <div class="fs-5 mb-5">
+                  <span>Category: </span>
+              
+              {% for category in categories %}
+              <p class="lead fw-normal text-black-50 mb-0">{{ category }}</p>
+              {% endfor %}
+
+              <div class="form-group">
+                  <input
+                  type="text"
+                  class="form-control"
+                  id="edit_category"
+                  name="edit_category"
+                  placeholder="edit category (specify ALL categories : eg. Category1, Category2)"
+                  />
+                </div>
+            </div>
+          
+          
+              <div class="fs-5 mb-5">
+                  <span>Authors: </span>
+                  {% for author in authors %}
+                  <p class="lead fw-normal text-black-50 mb-0">{{ author }}</p> 
+                  {% endfor %}
+            
+              <div class="form-group">
+                <input
+                type="text"
+                class="form-control"
+                id="edit_authors"
+                name="edit_authors"
+                placeholder="edit authors (specify ALL authors : eg. Author1, Author2)"
+                />
+              </div>
+            </div>
+
+              <div class="fs-5 mb-5">
+              <span>Keywords: </span>
+              {% for keyword in book_keywords %}
+              <p class="lead fw-normal text-black-50 mb-0">{{ keyword }}</p> 
+              {% endfor %}
+
+                <div class="form-group">
+                  <input
+                  type="text"
+                  class="form-control"
+                  id="edit_keys"
+                  name="edit_keys"
+                  placeholder="edit keywords"
+                  />
+                </div>
+              </div>
+
+
+              <br>
+              <br>
+
+
+              <div class="fs-5 mb-5">
+              <span>Summary: </span>
+              <textarea id="edit_summary" name="edit_summary" rows="4" cols="50">{{ summary }}</textarea>
+              </div>
+
+              <div class="small mb-1">Number of pages: 
+                    <input
+                    type="text"
+                    class="form-control"
+                    id="edit_pages"
+                    name="edit_pages"
+                    value="{{ pages }}"
+                    />
+              </div>
+
+              <div class="d-flex">
+                  <button type="submit" class="btn btn-outline-dark flex-shrink-0" type="button">
+                    <i class="fa fa-check" aria-hidden="true"></i>
+                      Save Changes
+                  </button>
+              </div>
+          </div>
+          </div>
+      </div>    
+</section>
+</form>
+</body>
+
+
+{% endblock %}

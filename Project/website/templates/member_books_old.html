@@ -33,34 +33,25 @@
 
     <form method='POST'> 
     <div class="form-group">
-        <label for="filter_author"> Filter by Author name</label>
-        <select  class="form-control" id="filter_author" name="filter_author">
-          <option value="all_books"> All </option>
-        {% for author in all_authors %}
-        <option value="{{ author }}"> {{ author }} </option>
-        {% endfor %}
+        <label for="filter"> Filter by </label>
+        <select  class="form-control" id="filter" name="filter">
+          <option value="all_books"> All Books </option>
+          <option value="title"> Title </option>
+          <option value="category"> Category </option>
+          <option value="author"> Author </option>
         </select>
+      </div>
 
-        <label for="filter_category"> Filter by Category</label>
-        <select  class="form-control" id="filter_category" name="filter_category">
-          <option value="all_books"> All </option>
-          {% for category in all_categories %}
-          <option value="{{ category }}"> {{ category }} </option>
-          {% endfor %}
-        </select>
-
-
-      <label for="search_book"> Search for a specific Title </label>
+      <label for="search_book"> Search keywords </label>
       <div class="form-group">
         <input
         type="text"
         class="form-control"
-        id="search_title"
-        name="search_title"
-        placeholder="Type here the Title you are looking for"
+        id="search_book"
+        name="search_book"
+        placeholder="Type here Title/Author/Category you are looking for"
         />
       </div>
-    </div>
 
       <button type="submit"><i class="fa fa-search"></i>Search</button>
       </form>

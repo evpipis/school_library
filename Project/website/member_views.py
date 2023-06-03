@@ -54,54 +54,7 @@ def logout(id):
 @library_exists
 @member_required
 def books(id):
-    if request.method=='POST':
-        print("inside POST request")
-        cur = mydb.connection.cursor()
-        cur.execute(f'''
-            SELECT name 
-            FROM school_unit
-            WHERE id = {id};
-        ''')
-        schoolname = cur.fetchone()
 
-        filter = request.form.get('filter')
-        keyword = request.form.get('search_book')
-        print(filter)
-        print(keyword)
-
-        if (filter == 'title'):
-            cur.execute (f'''
-                SELECT title, copies, book_instance.id
-                FROM book_title INNER JOIN book_instance ON book_title.id = book_instance.book_id 
-                WHERE book_instance.school_id = {id} AND book_title.title = '{keyword}';
-            ''')
-        if (filter == 'category'):
-            cur.execute (f'''
-                SELECT BT1.title, BI1.copies, BT1.id
-                FROM book_title AS BT1 INNER JOIN book_instance AS BI1 ON BT1.id = BI1.book_id 
-                INNER JOIN book_categories AS BC ON BC.book_id = BI1.book_id
-                INNER JOIN categories AS C ON C.id = BC.category_id
-                WHERE BI1.school_id = {id} AND C.category = '{keyword}';
-            ''')
-        if (filter == 'author'):
-            cur.execute(f'''
-                SELECT BT1.title, BI1.copies, BT1.id
-                FROM book_title AS BT1 INNER JOIN book_instance AS BI1 ON BT1.id = BI1.book_id 
-                INNER JOIN book_authors AS BA ON BA.book_id = BI1.book_id
-                INNER JOIN authors AS A ON A.id = BA.author_id
-                WHERE BI1.school_id = {id} AND A.author = '{keyword}';
-            ''')
-
-        selected_books = cur.fetchall()
-        cur.close()
-
-        print("cursor_closed")
-        print(selected_books)
-        if (selected_books!= ()):
-            return render_template("member_books.html", view='member', id=id, schoolname=schoolname[0], lib_books=selected_books)
-        else:
-            flash('Books not Found!', category='error')
-    
     cur = mydb.connection.cursor()
     cur.execute(f'''
         SELECT name 
@@ -117,9 +70,75 @@ def books(id):
         WHERE book_instance.school_id = {id};
     ''')
     lib_books = cur.fetchall()
-    cur.close()
 
-    return render_template("member_books.html", view='member', id=id, schoolname = schoolname[0], lib_books = lib_books)
+    cur.execute(f'''
+                SELECT category FROM categories''')
+    all_categories = [row[0] for row in cur.fetchall()]
+
+    cur.execute(f'''
+                SELECT author FROM authors''')
+    all_authors = [row[0] for row in cur.fetchall()]
+
+    # if filters applied by user
+    if request.method=='POST':
+        print("inside POST request")
+        cur = mydb.connection.cursor()
+        cur.execute(f'''
+            SELECT name 
+            FROM school_unit
+            WHERE id = {id};
+        ''')
+        schoolname = cur.fetchone()
+
+        filter_author = request.form.get('filter_author')
+        filter_category = request.form.get('filter_category')
+        filter_title = request.form.get('set_title')
+
+        print(filter_author)
+        print(filter_category)
+        print(filter_title)
+        selected_books=()
+
+        # assuming title is unique it overwrites other filters...
+        if filter_title != None :
+            cur.execute(f'''
+                        CALL filter_title ({id},'{filter_title}');
+                        ''')
+            selected_books = cur.fetchall()
+
+        else:
+            
+            if filter_author != 'all_books' :
+                cur.execute(f'''
+                            CALL filter_author({id},'{filter_author}');''')
+                selected_books = set(cur.fetchall())
+
+                if filter_category != 'all_books' :
+                    cur.execute(f'''
+                                CALL filter_category({id},'{filter_category}');''')
+                    selected_books = selected_books.intersection(cur.fetchall())
+            else:
+                if filter_category != 'all_books' :
+                    cur.execute(f'''
+                    CALL filter_category({id},'{filter_category}');''')
+                    selected_books = cur.fetchall()
+
+
+        cur.close()
+
+        print("cursor_closed")
+        print(selected_books)
+        if (selected_books!= () and selected_books!=set()):
+            return render_template("member_books.html", view='member', id=id, schoolname=schoolname[0], lib_books = selected_books,
+                                   all_authors = all_authors, all_categories = all_categories)
+        else:
+            flash('Books not Found!', category='error')
+
+    cur.close()
+    return render_template("member_books.html", view='member', id=id, schoolname = schoolname[0], lib_books = lib_books,
+                           all_authors = all_authors, all_categories = all_categories)
+
+
 
 ### preview views
 
@@ -130,18 +149,12 @@ def preview(id, bookid):
     cur = mydb.connection.cursor()
 
     cur.execute(f'''
-        SELECT title 
+        SELECT title, isbn, publisher, lang_id, pages, summary, image
         FROM book_title
         WHERE book_title.id = {bookid};
     ''')
-    title = cur.fetchone()
-
-    cur.execute(f'''
-        SELECT isbn 
-        FROM book_title
-        WHERE book_title.id = {bookid};
-    ''')
-    isbn = cur.fetchone()
+    data = cur.fetchone()
+    print(data)
 
     cur.execute(f'''
         SELECT author
@@ -163,6 +176,14 @@ def preview(id, bookid):
     print(categories)
 
     cur.execute(f'''
+        SELECT keyword FROM
+                keywords INNER JOIN book_keywords
+                ON keywords.id = book_keywords.keyword_id
+                WHERE book_keywords.book_id = {bookid} ;
+                ''')
+    book_keywords = [row[0] for row in cur.fetchall()]
+
+    cur.execute(f'''
         SELECT summary 
         FROM book_title
         WHERE book_title.id = {bookid};
@@ -170,9 +191,9 @@ def preview(id, bookid):
     summary = [row[0] for row in cur.fetchall()]
     
     cur.close()
-    return render_template("member_preview.html", view='member', id=id
-                           , bookid=bookid ,title=title[0], isbn=isbn[0]
-                           , authors=authors, categories=categories, summary=summary[0])
+    return render_template("member_preview.html", view='member', id=id,bookid=bookid, title = data[0],
+                          isbn = data[1],publisher = data[2], lang_id = data[3], pages = data[4], summary = data[5], image = data[6],
+                            authors=authors, categories=categories, book_keywords = book_keywords)
 
 @member_views.route('/lib<id>/member/book<bookid>/make_review',methods=['POST'])
 @library_exists
