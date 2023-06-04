@@ -209,20 +209,21 @@ def add_book(id):
                 
                 for author in authors.split(','):
                     cur.execute(f'''
-                    CALL revise_authors('{author}',{bookid[0]})
+                        CALL revise_authors('{author}',{bookid[0]})
                     ''')
-                mydb.connection.commit()
+                    mydb.connection.commit()
 
                 for category in categories.split(','):
-                     cur.execute(f'''
-                     CALL revise_categories('{category}',{bookid[0]})
-                     ''')
-                 mydb.connection.commit()
+                    cur.execute(f'''
+                        CALL revise_categories('{category}',{bookid[0]})
+                    ''')
+                    mydb.connection.commit()
                 
                 for keyword in keywords.split(','):
-                 cur.execute(f'''
-                 CALL revise_keywords('{keyword}',{bookid[0]})''')  
-                mydb.connection.commit() 
+                    cur.execute(f'''
+                        CALL revise_keywords('{keyword}',{bookid[0]})
+                    ''')  
+                    mydb.connection.commit() 
     
                 cur.execute('''
                     INSERT INTO book_instance
@@ -954,7 +955,7 @@ def edit_details(id, bookid):
         WHERE book_title.id = {bookid};
     ''')
     data = cur.fetchone()
-    #print(data)
+    print(data)
 
     cur.execute(f'''
         SELECT author
@@ -963,7 +964,7 @@ def edit_details(id, bookid):
         WHERE book_authors.book_id = {bookid};
     ''' )
     authors = [row[0] for row in cur.fetchall()]
-    #print(authors)
+    print(authors)
 
     cur.execute(f'''
         SELECT category
@@ -973,7 +974,7 @@ def edit_details(id, bookid):
     ''' )
     # print(cur.fetchall())
     categories = [row[0] for row in cur.fetchall()]
-    #print(categories)
+    print(categories)
 
     cur.execute(f'''
         SELECT keyword FROM
@@ -982,6 +983,7 @@ def edit_details(id, bookid):
                 WHERE book_keywords.book_id = {bookid} ;
                 ''')
     book_keywords = [row[0] for row in cur.fetchall()]
+    cur.close()
 
     title = data[0]
     isbn = data[1]
@@ -991,6 +993,7 @@ def edit_details(id, bookid):
     summary = data[5]
     image = data[6]
 
+    
     if request.method == 'POST':
         new_lang  = request.form.get('edit_langid')
         new_publisher = request.form.get('edit_publisher')
@@ -999,6 +1002,7 @@ def edit_details(id, bookid):
         new_keywords = request.form.get('edit_keys')
         new_summary = request.form.get('edit_summary')
         new_pages = request.form.get('edit_pages')
+        print(new_lang)
 
         #print(int(pages)==data[4])
         #print(len(new_keywords))
@@ -1030,12 +1034,13 @@ def edit_details(id, bookid):
         # remove existing categories for safety to avoid duplicates and add them again if specified
         if new_categories != None and len(new_categories) > 0 :
             changes = True
-            cur.execute('''
+            cur.execute(f'''
             DELETE FROM book_categories
-            WHERE book_id = %s ; ''', (bookid)) 
+            WHERE book_id = {bookid}; ''') 
             mydb.connection.commit() 
 
             for category in new_categories.split(','):
+                category = category.strip()
                 cur.execute(f'''
                 CALL revise_categories('{category}',{bookid});
                  ''')
@@ -1044,26 +1049,28 @@ def edit_details(id, bookid):
 
         if new_authors != None and len(new_authors) > 0 :
             changes = True
-            cur.execute('''
+            cur.execute(f'''
             DELETE FROM book_authors
-            WHERE book_id = %s ; ''', (bookid)) 
+            WHERE book_id = {bookid}; ''') 
             mydb.connection.commit()
 
             for author in new_authors.split(',') :
+                author = author.strip()
                 cur.execute(f'''
                 CALL revise_authors('{author}',{bookid});
                 ''')
                 mydb.connection.commit()
             authors = list(new_authors.split(','))
 
-        if new_keywords != None and len(new_keywords) > 0 : 
+        if new_keywords != None and len(new_keywords) > 0 :
             changes = True
-            cur.execute('''
+            cur.execute(f'''
             DELETE FROM book_keywords
-            WHERE book_id = %s ; ''', (bookid)) 
+            WHERE book_id = {bookid}; ''') 
             mydb.connection.commit() 
 
             for keyword in new_keywords.split(','):
+                keyword = keyword.strip()
                 cur.execute(f'''
                 CALL revise_keywords('{keyword}',{bookid}) ;''') 
                 mydb.connection.commit()
@@ -1101,8 +1108,6 @@ def edit_details(id, bookid):
                           isbn = isbn, publisher = publisher, lang_id = lang_id, pages = pages, summary = summary, image = image,
                             authors=authors, categories=categories, book_keywords = book_keywords)
 
-    
-    cur.close()
     return render_template("manager_book_edit.html", view='manager', id=id,bookid=bookid, title = title,
                           isbn = isbn ,publisher = publisher, lang_id = lang_id, pages = pages, summary = summary, image = image,
                             authors=authors, categories=categories, book_keywords = book_keywords)
