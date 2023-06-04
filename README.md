@@ -4,7 +4,7 @@
 
 * Make sure you have installed MySQL Workbench and Visual Studio Code.
 
-### Run the following sql queries inside the DMBS (at this spesific order !).
+### Run the following sql queries inside the DMBS (at this specific order !).
 
 * CREATE_tables.sql to create the database and the tables.
 * INSERT_mock_data.sql to insert some mock data for testing purposes.
