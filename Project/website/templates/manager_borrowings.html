@@ -61,6 +61,40 @@
   
 </form>
 
+<form action={{ url_for('manager_views.delayed_users', id=id) }} method="POST">
+  <h3 align="center"> Find Delayed Users </h3>
+
+  <div class="form-group">
+    <label for="delayed_user"> User Name </label>
+    <input
+    type="text"
+    class="form-control"
+    id="delayed_user"
+    name="delayed_user"
+    value="#all"
+    />
+  </div>
+
+  <div class="form-group">
+    <label for="days_delayed"> Days Delayed </label>
+    <input
+    type="number"
+    min="1"
+    max="1000"
+    step="1"
+    value="1"
+    class="form-control"
+    id="days_delayed"
+    name="days_delayed"
+    />
+  </div>
+
+  <br />
+  
+  <button type="submit" class="btn btn-primary"> Find </button>
+  
+</form>
+
 <br />
 
 <style>

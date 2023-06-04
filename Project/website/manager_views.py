@@ -774,6 +774,22 @@ def return_book(id):
         return redirect(url_for('manager_views.borrowings', id=id))
     return redirect(url_for('manager_views.borrowings', id=id))
 
+@manager_views.route('/lib<id>/manager/borrowings/delayed_users', methods=['POST'])
+@library_exists
+@manager_required
+def delayed_users(id):
+    delayed_user = request.form.get('delayed_user')
+    days_delayed = request.form.get('days_delayed')
+
+    cur = mydb.connection.cursor()
+    cur.execute(f'''
+        CALL red_flag_users ({days_delayed}, '{delayed_user}', {id});
+    ''')
+    records = cur.fetchall()
+    cur.close()
+    return render_template("manager_output.html", view='manager', id=id, operation='delayed_users'
+                           , delayed_user=delayed_user, days_delayed=days_delayed, records=records)
+
 ### reviews views
 
 @manager_views.route('/lib<id>/manager/reviews')
