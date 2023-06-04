@@ -55,14 +55,14 @@ END;//
 /* Member queries */
 DROP PROCEDURE IF EXISTS filter_title;//
 create procedure filter_title (IN schoolid INT, IN title VARCHAR (40)) BEGIN
-SELECT title, copies, book_title.id FROM 
+SELECT title, copies, book_title.id, BT1.image FROM 
 book_title INNER JOIN book_instance ON book_title.id = book_instance.book_id 
 WHERE book_instance.school_id = schoolid AND book_title.title = title ;
 END;//
 
 DROP PROCEDURE IF EXISTS filter_category;//
 create procedure filter_category (IN schoolid INT, IN select_category VARCHAR (40) ) BEGIN
-SELECT BT1.title, BI1.copies, BT1.id FROM 
+SELECT BT1.title, BI1.copies, BT1.id, BT1.image FROM 
 book_title AS BT1 INNER JOIN book_instance AS BI1 ON BT1.id = BI1.book_id 
 INNER JOIN book_categories AS BC ON BC.book_id = BI1.book_id
 INNER JOIN categories AS C ON C.id = BC.category_id
@@ -71,7 +71,7 @@ END; //
 
 DROP PROCEDURE IF EXISTS filter_author;//
 create procedure filter_author (IN schoolid INT, IN select_author VARCHAR (40)) BEGIN
-SELECT BT1.title, BI1.copies, BT1.id FROM 
+SELECT BT1.title, BI1.copies, BT1.id, BT1.image FROM 
 book_title AS BT1 INNER JOIN book_instance AS BI1 ON BT1.id = BI1.book_id 
 INNER JOIN book_authors AS BA ON BA.book_id = BI1.book_id
 INNER JOIN authors AS A ON A.id = BA.author_id
@@ -229,7 +229,7 @@ END //
 -- filter number of copies
 DROP PROCEDURE IF EXISTS filter_copies;//
 	create procedure filter_copies (IN lib_id INT, IN selected_copies INT) BEGIN
-	SELECT book_title.title, book_instance.copies, book_title.id FROM 
+	SELECT book_title.title, book_instance.copies, book_title.id, book_title.image FROM 
 	book_title INNER JOIN book_instance ON book_title.id = book_instance.book_id 
 	WHERE book_instance.school_id = lib_id AND book_instance.copies = selected_copies ;
 END;

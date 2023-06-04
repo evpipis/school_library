@@ -63,7 +63,7 @@ def books(id):
     schoolname = cur.fetchone()
 
     cur.execute(f'''
-        SELECT title, copies, book_title.id
+        SELECT title, copies, book_title.id, image
         FROM book_title INNER JOIN book_instance
         ON book_title.id = book_instance.book_id
         WHERE book_instance.school_id = {id};
@@ -171,7 +171,7 @@ def books(id):
                 selected_books = set(cur.fetchall())            
 
         cur.close()
-
+    
         print("cursor_closed")
         print(selected_books)
         if (selected_books!=set() and selected_books != ()):
@@ -352,6 +352,7 @@ def preview(id, bookid):
     ''')
     summary = [row[0] for row in cur.fetchall()]
     
+
     cur.close()
     return render_template("manager_preview.html", view='manager', id=id,bookid=bookid, title = data[0],
                           isbn = data[1],publisher = data[2], lang_id = data[3], pages = data[4], summary = data[5], image = data[6],
@@ -1057,7 +1058,7 @@ def edit_details(id, bookid):
     pages=data[4]
     summary = data[5]
     image = data[6]
-
+    print(image)
     
     if request.method == 'POST':
         new_lang  = request.form.get('edit_langid')
