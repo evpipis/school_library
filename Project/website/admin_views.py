@@ -86,6 +86,47 @@ def libraries():
                            , inactive_schools=inactive_schools
                            , active_schools=active_schools)
 
+@admin_views.route('/admin/libraries/switch_activation', methods=['POST'])
+@admin_required
+def switch_activation_school():
+    record = json.loads(request.data)
+    school_id = record['school_id']
+    try:
+        cur = mydb.connection.cursor()
+        cur.execute(f'''
+            UPDATE school_unit
+            SET is_active = NOT is_active
+            WHERE id = {int(school_id)};
+        ''')
+        mydb.connection.commit()
+        cur.close()
+        flash('Activation status changed successfully.', category='success')
+    except Exception as e:
+        flash(str(e), category='error')
+        print(str(e))
+
+    return jsonify({})
+
+@admin_views.route('/admin/libraries/delete_user', methods=['POST'])
+@admin_required
+def delete_school():
+    record = json.loads(request.data)
+    school_id = record['school_id']
+    try:
+        cur = mydb.connection.cursor()
+        cur.execute(f'''
+            DELETE FROM school_unit
+            WHERE id = {int(school_id)}; 
+        ''')
+        mydb.connection.commit()
+        cur.close()
+        flash('School deleted successfully.', category='success')
+    except Exception as e:
+        flash(str(e), category='error')
+        print(str(e))
+
+    return jsonify({})
+
 ### managers views
 
 @admin_views.route('/admin/managers', methods=['GET', 'POST'])

@@ -87,6 +87,9 @@
     <button type="button" class="close" onclick="deleteUser({{manager.id}})">
       <span aria-hidden="true">delete</span>
     </button>
+    <button type="button" class="close" onclick="switchActivation({{manager.id}})">
+      <span aria-hidden="true">activate&nbsp&nbsp</span>
+    </button>
   </li>
   {% endfor %}
 </ul>
@@ -102,7 +105,7 @@
       <span aria-hidden="true">delete</span>
     </button>
     <button type="button" class="close" onclick="switchActivation({{manager.id}})">
-      <span aria-hidden="true">diactivate&nbsp&nbsp</span>
+      <span aria-hidden="true">deactivate&nbsp&nbsp</span>
     </button>
   </li>
   {% endfor %}

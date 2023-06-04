@@ -357,9 +357,16 @@ def preview(id, bookid):
                           isbn = data[1],publisher = data[2], lang_id = data[3], pages = data[4], summary = data[5], image = data[6],
                             authors=authors, categories=categories, book_keywords = book_keywords)
 
-    
 
-### members views
+@manager_views.route('/lib<id>/manager/book<bookid>/delete_book', methods = ['POST'])
+@library_exists
+@manager_required
+def delete_book_instance(id, bookid):
+    flash('Cannot delete this book instance.', category='error')
+    return redirect(url_for('manager_views.preview', id=id, bookid=bookid))
+
+
+### members view
 
 @manager_views.route('/lib<id>/manager/members', methods = ['GET', 'POST'])
 @library_exists

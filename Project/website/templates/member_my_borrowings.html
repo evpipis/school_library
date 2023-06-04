@@ -76,7 +76,6 @@
           <td>  {{reservation.username}} ({{reservation.id}})</td>
           <td>  'pending'</td>
           <td>  {{reservation.date}}</td>
-          <td>  BUTTON </td>
     {% endfor %}
     {% for reservation in active_reservations %}
       <tr class="active-row"> 
@@ -84,7 +83,6 @@
           <td>  {{reservation.username}} ({{reservation.id}})</td>
           <td>  'active'</td>
           <td>  {{reservation.date}}</td>
-          <td>  BUTTON </td>
     {% endfor %}
   </tbody>
 </table>  
@@ -106,7 +104,6 @@
           <td>  {{borrow.username}} ({{borrow.id}})</td>
           <td>  'delayed'</td>
           <td>  {{borrow.date}}</td>
-          <td>  BUTTON </td>
     {% endfor %}
     {% for borrow in active_borrowings %}
       <tr class="active-row"> 
@@ -114,7 +111,6 @@
           <td>  {{borrow.username}} ({{borrow.id}})</td>
           <td>  'active'</td>
           <td>  {{borrow.date}}</td>
-          <td>  BUTTON </td>
     {% endfor %}
   </tbody>
 </table>
@@ -136,7 +132,6 @@
           <td>  {{borrow.username}} ({{borrow.id}})</td>
           <td>  'completed'</td>
           <td>  {{borrow.date}}</td>
-          <td>  BUTTON </td>
     {% endfor %}
   </tbody>
 </table>

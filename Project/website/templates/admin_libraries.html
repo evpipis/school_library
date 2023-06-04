@@ -88,9 +88,12 @@
   <h3 align="center">Inactive Schools</h3>
   {% for school in inactive_schools %}
   <li class="list-group-item">
-    <a id="{{'init_lib%s'%school.id}}" href="{{'/lib%s/index'%school.id}}">{{school.name}}</a>
-    <button type="button" class="close">
-      <span aria-hidden="true">edit</span>
+    <a id="{{'init_lib%s'%school.id}}" href="{{'/lib%s/index'%school.id}}">{{school.name}} ({{school.id}})</a>
+    <button type="button" class="close" onclick="deleteSchool({{school.id}})">
+      <span aria-hidden="true">delete</span>
+    </button>
+    <button type="button" class="close" onclick="switchActivation({{school.id}})">
+      <span aria-hidden="true">activate&nbsp&nbsp</span>
     </button>
   </li>
   {% endfor %}
@@ -101,11 +104,35 @@
   <h3 align="center">Active Schools</h3>
   {% for school in active_schools %}
   <li class="list-group-item">
-    <a id="{{'init_lib%s'%school.id}}" href="{{'/lib%s/index'%school.id}}">{{school.name}}</a>
-    <button type="button" class="close">
-      <span aria-hidden="true">edit</span>
+    <a id="{{'init_lib%s'%school.id}}" href="{{'/lib%s/index'%school.id}}">{{school.name}} ({{school.id}})</a>
+    <button type="button" class="close" onclick="deleteSchool({{school.id}})">
+      <span aria-hidden="true">delete</span>
+    </button>
+    <button type="button" class="close" onclick="switchActivation({{school.id}})">
+      <span aria-hidden="true">deactivate&nbsp&nbsp</span>
     </button>
   </li>
   {% endfor %}
 </ul>
+
+
+<script type="text/javascript">
+  function switchActivation(school_id) {
+      fetch("/admin/libraries/switch_activation", {
+          method: "POST",
+          body: JSON.stringify({ school_id: school_id }),
+      }).then((_res) => {
+          window.location.href = "/admin/libraries";
+      });
+  }
+  
+  function deleteSchool(school_id) {
+      fetch("/admin/libraries/delete_user", {
+          method: "POST",
+          body: JSON.stringify({ school_id: school_id }),
+      }).then((_res) => {
+          window.location.href = "/admin/libraries";
+      });
+  }
+  </script>
 {% endblock %}
