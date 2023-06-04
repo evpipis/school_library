@@ -58,12 +58,13 @@
             </div>
               <div class="d-flex">
                 <form action={{ url_for('member_views.reserve_book_button', id=id, bookid=bookid) }} method="POST">
+                  
                   <button type="submit" class="btn btn-outline-dark flex-shrink-0" type="button">
                       <i class='fa fa-book teal-color'></i>
                       Reserve Now
                   </button>
-                  <!-- <input class="btn btn-outline-dark flex-shrink-0" type="submit" value="Resevation Request"> -->
                 </form>
+                  <!-- <input class="btn btn-outline-dark flex-shrink-0" type="submit" value="Resevation Request"> -->
               </div>
               <div class="d-flex">
                 <button class="btn btn-outline-dark flex-shrink-0" onclick="openPopup()" type="button">

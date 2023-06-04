@@ -13,10 +13,10 @@
 
 * Run
 
-      $ git clone https://github.com/nickbel7/hotel-management.git
+      $ git clone https://github.com/evpipis/school_library.git
       $ cd hotel-management
 
-* Add your database credentials at config.py file in website folder,
+* Create config.py file in website folder and add the following credentials,
 
       secret_key = 'some random string'
       mysql_host = 'localhost'
@@ -31,6 +31,6 @@
 * Run the following script to enter the Project folder and start the web-server (in development mode),
 
       $ cd Project
-	    $ flask --app main run --debug
+      $ flask --app main run --debug
       
 * Open your browser and type http://127.0.0.1:5000/ to preview the website.

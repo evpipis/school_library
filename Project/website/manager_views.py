@@ -142,7 +142,7 @@ def books(id):
                 cur.execute(f'''
                             CAll filter_copies({id}, {filter_copies} );
                             ''')
-                selected_books = cur.fetchall()             
+                selected_books = cur.fetchall()
 
         cur.close()
 
@@ -210,14 +210,14 @@ def add_book(id):
                 for author in authors.split(','):
                     cur.execute(f'''
                     CALL revise_authors('{author}',{bookid[0]})
-                 ''')
+                    ''')
                 mydb.connection.commit()
 
                 for category in categories.split(','):
                      cur.execute(f'''
                      CALL revise_categories('{category}',{bookid[0]})
-                 ''')
-                mydb.connection.commit()
+                     ''')
+                 mydb.connection.commit()
                 
                 for keyword in keywords.split(','):
                  cur.execute(f'''
@@ -810,7 +810,7 @@ def reviews(id):
     for row in active_reviews_rec:
         active_reviews.append({'title': row[0], 'isbn': row[1], 'username': row[2], 'user_id': row[3], 'stars': row[4], 'opinion': row[5], 'id': row[6]})
 
-    return render_template("manager_reviews.html", view='member', id=id
+    return render_template("manager_reviews.html", view='manager', id=id
                            , inactive_reviews=inactive_reviews
                            , active_reviews=active_reviews)
 

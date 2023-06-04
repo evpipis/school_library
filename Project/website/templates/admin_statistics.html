@@ -1,0 +1,114 @@
+{% extends "base.html" %}
+
+{% block title %} Admin Statistics {% endblock %}
+
+{% block content %}
+  <h1>
+    This is the admin/statistics page! Admin can do any related operations here.
+  </h1>
+
+  <li class="list-group-item">
+    <h4>Total borrows per school in a specified month:</h4>
+    <form action={{ url_for('admin_views.operation_1') }} method="POST">      
+      <div class="form-group">
+        <label for="year"> Specify Year </label>
+        <input id = "year" name = "year" type="number" min="2000" max="2099" step="1" value="2023" />
+      </div>
+      
+      <div class="form-group">
+        <label for="month"> Specify Month </label>
+        <input id = "month" name = "month" type="number" min="01" max="12" step="1" value="4" />
+      </div>
+      <br />
+      
+      <!-- <button type="submit" class="btn btn-primary">Login</button> -->
+      <button type="submit" class="close">
+        <span aria-hidden="true">view</span>
+      </button>
+    </form>
+    <br />
+  </li>
+  <br>
+  <br>
+
+  <li class="list-group-item">
+    <h4>All authors related to specified category and all teachers having borrowd from specified category in the last year :</h4>
+    <form action={{ url_for('admin_views.operation_2') }} method="POST">      
+      <div class="form-group">
+        <label for="category"> Specify Category </label>
+        <select class="form-control" id="category" name="category">
+          {% for category in categories %}
+          <option value="{{category}}"> {{category}} </option>
+          {% endfor %}
+        </select>
+      </div>
+    
+      <br />
+      
+      <!-- <button type="submit" class="btn btn-primary">Login</button> -->
+      <button type="submit" class="close">
+        <span aria-hidden="true">view</span>
+      </button>
+    </form>
+    <br />
+  </li>
+  <br>
+  <br>
+
+   <li class="list-group-item">
+    <h4>Young Teachers ( < 40 ) with most borrows :</h4>
+    <button type="button" class="close" onclick="location.href='/admin/statistics/operation_3';">
+      <span aria-hidden="true">view</span>
+    </button>
+    <br />
+  </li>
+  <br>
+  <br>
+
+  <li class="list-group-item">
+  <h4>Authors with zero number of borrows so far :</h4>
+    <button type="button" class="close" onclick="location.href='/admin/statistics/operation_4';">
+      <span aria-hidden="true">view</span>
+    </button>
+    <br />
+  </li>
+  <div>
+    {% for author in unfamous_authors %}
+    <p>{{ author }}</p>
+    {% endfor %}
+  </div>
+  <br>
+  <br>
+
+  <li class="list-group-item">
+  <h4>Managers who lend same number of books in the last year ( with over 20 lends ) :</h4>
+    <button type="button" class="close" onclick="location.href='/admin/statistics/operation_5';">
+      <span aria-hidden="true">view</span>
+    </button>
+    <br />
+  </li>
+  <br>
+  <br>
+
+  <li class="list-group-item">
+  <h4>Top 3 category pairs encountered together in borrowing list :</h4>
+    <button type="button" class="close" onclick="location.href='/admin/statistics/operation_6';">
+      <span aria-hidden="true">view</span>
+    </button>
+    <br />
+  </li>
+  <br>
+  <br>
+
+  <li class="list-group-item">
+  <h4>Authors having written at least five books less than the books written by the author with most written books :</h4>
+    <button type="button" class="close" onclick="location.href='/admin/statistics/operation_7';">
+      <span aria-hidden="true">view</span>
+    </button>
+    <br />
+  </li>
+  <br>
+  <br>
+
+  {% endblock %}
+

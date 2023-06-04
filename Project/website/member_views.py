@@ -78,7 +78,8 @@ def books(id):
     cur.execute(f'''
                 SELECT author FROM authors''')
     all_authors = [row[0] for row in cur.fetchall()]
-
+    cur.close()
+    
     # if filters applied by user
     if request.method=='POST':
         print("inside POST request")
@@ -133,8 +134,7 @@ def books(id):
                                    all_authors = all_authors, all_categories = all_categories)
         else:
             flash('Books not Found!', category='error')
-
-    cur.close()
+    
     return render_template("member_books.html", view='member', id=id, schoolname = schoolname[0], lib_books = lib_books,
                            all_authors = all_authors, all_categories = all_categories)
 
@@ -189,7 +189,23 @@ def preview(id, bookid):
         WHERE book_title.id = {bookid};
     ''')
     summary = [row[0] for row in cur.fetchall()]
+
+    cur.execute(f'''
+                CALL total_reservations({session.get('id')}) ;
+                ''')
+    reservations = len(cur.fetchall())
+    if (session.get('role') == 'member-student' and reservations < 2):
+        allow = True
+    elif (reservations < 1):
+        allow = True
+    else :
+        allow = False
     
+    cur.execute(f'''
+                CALL is_reserved ({session.get('id')}, {bookid}) ;
+                ''')
+    reserved = (cur.fetchall() != () )
+
     cur.close()
     return render_template("member_preview.html", view='member', id=id,bookid=bookid, title = data[0],
                           isbn = data[1],publisher = data[2], lang_id = data[3], pages = data[4], summary = data[5], image = data[6],
@@ -667,10 +683,12 @@ def my_reviews(id):
 
     cur = mydb.connection.cursor()
     cur.execute(f'''
-        SELECT book_title.title, book_title.isbn, review.stars, review.opinion
+        SELECT book_title.title, book_title.isbn, review.stars, review.opinion, user.username, user.id
         FROM review
         INNER JOIN book_title
         ON review.book_id = book_title.id
+        INNER JOIN user
+        ON user.id = review.user_id
         WHERE review.is_active = TRUE;
     ''')
     active_reviews_rec = cur.fetchall()
@@ -684,7 +702,7 @@ def my_reviews(id):
         my_active_reviews.append({'title': row[0], 'isbn': row[1], 'username': user_username, 'user_id': user_id, 'stars': row[2], 'opinion': row[3]})
     active_reviews = list()
     for row in active_reviews_rec:
-        active_reviews.append({'title': row[0], 'isbn': row[1], 'username': user_username, 'user_id': user_id, 'stars': row[2], 'opinion': row[3]})
+        active_reviews.append({'title': row[0], 'isbn': row[1], 'username': row[4], 'user_id': row[5], 'stars': row[2], 'opinion': row[3]})
     
 
     return render_template("member_my_reviews.html", view='member', id=id
