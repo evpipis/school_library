@@ -20,6 +20,7 @@
   tr:nth-child(even){background-color: #f5f5f5}
   </style>
 
+<!-- Operation delayed_users -->
 {% if operation == 'delayed_users' %}
 <h2>Selected name is '{{delayed_user}}' and selected days delayed are '{{days_delayed}}'</h2>
 <table class="styled-table">
@@ -41,9 +42,29 @@
   </tbody>
 </table>
 
-<!-- Operation2 -->
-
-{% elif operation == 3 %}
+<!-- Operation average_rating -->
+{% elif operation == 'average_rating' %}
+<h2>Selected name is '{{review_user}}' and selected category is '{{review_category}}'.</h2>
+<table class="styled-table">
+  <h3> Average rating per user and category:</h3>
+  <thead>
+    <tr>
+        <th>Name</th>
+        <th>Username (id)</th>
+        <th>Category</th>
+        <th>Average Rating</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for record in records %}
+    <tr class="active-row"> 
+        <td>  {{record[0]}} </td>
+        <td>  {{record[1]}} ({{record[2]}}) </td>
+        <td>  {{record[3]}} </td>
+        <td>  {{record[4]}} </td>
+    {% endfor %}
+  </tbody>
+</table>
 
 {% endif %}
 

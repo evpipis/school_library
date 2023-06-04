@@ -818,6 +818,12 @@ def reviews(id):
         WHERE review.is_active = TRUE;
     ''')
     active_reviews_rec = cur.fetchall()
+
+    cur = mydb.connection.cursor()
+    cur.execute(f'''
+        SELECT category FROM categories;
+    ''')
+    categories = [row[0] for row in cur.fetchall()]
     cur.close()
 
     inactive_reviews = list()
@@ -826,10 +832,11 @@ def reviews(id):
     active_reviews = list()
     for row in active_reviews_rec:
         active_reviews.append({'title': row[0], 'isbn': row[1], 'username': row[2], 'user_id': row[3], 'stars': row[4], 'opinion': row[5], 'id': row[6]})
-
+    
     return render_template("manager_reviews.html", view='manager', id=id
                            , inactive_reviews=inactive_reviews
-                           , active_reviews=active_reviews)
+                           , active_reviews=active_reviews
+                           , categories=categories)
 
 @manager_views.route('/lib<id>/manager/reviews/switch_activation', methods=['POST'])
 @library_exists
@@ -874,6 +881,22 @@ def delete_review(id):
         print(str(e))
 
     return jsonify({})
+
+@manager_views.route('/lib<id>/manager/reviews/average_rating', methods=['POST'])
+@library_exists
+@manager_required
+def average_rating(id):
+    review_user = request.form.get('review_user')
+    review_category = request.form.get('review_category')
+
+    cur = mydb.connection.cursor()
+    cur.execute(f'''
+        CALL average_rating ({id}, '{review_user}', '{review_category}');
+    ''')
+    records = cur.fetchall()
+    cur.close()
+    return render_template("manager_output.html", view='manager', id=id, operation='average_rating'
+                           , review_user=review_user, review_category=review_category, records=records)
 
 ### settings views
 
