@@ -238,40 +238,39 @@ create procedure red_flag_users (IN delay_days INT, IN full_name VARCHAR(40), IN
 END;
 //
 
--- /*3.2.2*/
--- DROP PROCEDURE IF EXISTS red_flag_users;//
--- create procedure red_flag_users (IN delay_days INT, IN full_name VARCHAR(40), IN lib_id INT) BEGIN
--- 	SELECT USR.id FROM
--- 	user AS USR INNER JOIN borrowing AS BR ON USR.id = BR.user_id
--- 	WHERE DAY(current_timestamp()) >= (DAY(borrowing.borrow_date) + (delay_days + 7) ) AND BR.return_date is NULL 
--- 	AND borrowing.status = 'delayed'
--- 	AND USR.school_id = lib_id AND USR.name = full_name 
--- 	GROUP BY USR.id;
--- END;
--- //
-
 /*3.2.3*/
 
 -- filter user
+DROP PROCEDURE IF EXISTS average_rating;//
+create procedure average_rating (IN lib_id INT, IN select_name VARCHAR(40), IN select_category VARCHAR(40) ) BEGIN
+	SELECT user.name, user.username, user.id, categories.category, AVG(review.stars)
+    FROM user JOIN review ON user.id = review.user_id
+    JOIN book_categories ON review.book_id = book_categories.book_id
+    JOIN categories ON book_categories.category_id = categories.id
+    WHERE user.school_id = lib_id AND (select_name = '#all' OR select_name = user.name)
+		AND (select_category = '#all' OR select_category = categories.category)
+	GROUP BY user.id, categories.id;
+END; 
+//
 
 -- check here
 
 DROP PROCEDURE IF EXISTS average_user_rating;//
-	create procedure average_user_rating (IN lib_id INT, IN select_name VARCHAR(40) ) BEGIN
-	SELECT user.username, AVG(stars) FROM 
-	review INNER JOIN user ON review.user_id = user.id
-	WHERE user.school_id = lib_id AND user.username = select_name ;
-END; 
-//
+-- create procedure average_user_rating (IN lib_id INT, IN select_name VARCHAR(40) ) BEGIN
+-- 	SELECT user.username, AVG(stars) FROM 
+-- 	review INNER JOIN user ON review.user_id = user.id
+-- 	WHERE user.school_id = lib_id AND user.username = select_name ;
+-- END; 
+-- //
 
 -- filter category
 
 -- check here
 DROP PROCEDURE IF EXISTS average_category_rating;//
-create procedure average_category_rating (IN lib_id INT, IN select_category VARCHAR(40)) BEGIN
-SELECT AVG (stars) FROM 
-review INNER JOIN book_title ON review.book_id = book_title.id
-INNER JOIN book_categories ON book_categories.book_id = book_title.id
-INNER JOIN categories ON categories.id = book_categories.category_id 
-WHERE categories.category = select_category ;
-END; //
+-- create procedure average_category_rating (IN lib_id INT, IN select_category VARCHAR(40)) BEGIN
+-- SELECT AVG (stars) FROM 
+-- review INNER JOIN book_title ON review.book_id = book_title.id
+-- INNER JOIN book_categories ON book_categories.book_id = book_title.id
+-- INNER JOIN categories ON categories.id = book_categories.category_id 
+-- WHERE categories.category = select_category ;
+-- END; //
