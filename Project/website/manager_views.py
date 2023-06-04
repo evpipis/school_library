@@ -125,7 +125,7 @@ def books(id):
                     cur.execute(f'''
                                 CAll filter_copies({id}, {filter_copies} );
                                 ''')
-                    selected_books.intersection(set(cur.fetchall()))
+                    selected_books = selected_books.intersection(set(cur.fetchall()))
 
             elif filter_category != 'all_books':
                     cur.execute(f'''
@@ -136,13 +136,13 @@ def books(id):
                         cur.execute(f'''
                                     CAll filter_copies({id}, {filter_copies} );
                                     ''')
-                        selected_books.intersection(set(cur.fetchall()))
+                        selected_books = selected_books.intersection(set(cur.fetchall()))
 
             elif filter_copies != '':
                 cur.execute(f'''
                             CAll filter_copies({id}, {filter_copies} );
                             ''')
-                selected_books = cur.fetchall()             
+                selected_books = set(cur.fetchall())            
 
         cur.close()
 
@@ -1019,7 +1019,7 @@ def edit_details(id, bookid):
 
         if new_publisher != publisher:
             changes = True
-            cur.execute('''
+            cur.execute(f'''
             UPDATE book_title
             SET lang_id = %s
             WHERE id = %s ; ''',
@@ -1030,9 +1030,9 @@ def edit_details(id, bookid):
         # remove existing categories for safety to avoid duplicates and add them again if specified
         if new_categories != None and len(new_categories) > 0 :
             changes = True
-            cur.execute('''
+            cur.execute(f'''
             DELETE FROM book_categories
-            WHERE book_id = %s ; ''', (bookid)) 
+            WHERE book_id = {bookid} ; ''') 
             mydb.connection.commit() 
 
             for category in new_categories.split(','):
@@ -1044,9 +1044,9 @@ def edit_details(id, bookid):
 
         if new_authors != None and len(new_authors) > 0 :
             changes = True
-            cur.execute('''
+            cur.execute(f'''
             DELETE FROM book_authors
-            WHERE book_id = %s ; ''', (bookid)) 
+            WHERE book_id = {bookid} ; ''') 
             mydb.connection.commit()
 
             for author in new_authors.split(',') :
@@ -1058,9 +1058,9 @@ def edit_details(id, bookid):
 
         if new_keywords != None and len(new_keywords) > 0 : 
             changes = True
-            cur.execute('''
+            cur.execute(f'''
             DELETE FROM book_keywords
-            WHERE book_id = %s ; ''', (bookid)) 
+            WHERE book_id = {bookid} ; ''') 
             mydb.connection.commit() 
 
             for keyword in new_keywords.split(','):
@@ -1072,22 +1072,20 @@ def edit_details(id, bookid):
 
         if new_summary!= summary:
             changes = True
-            cur.execute('''
+            cur.execute(f'''
             UPDATE book_title 
-            SET summary = %s
-            WHERE id = %s ;''',
-            (new_summary, bookid) )
+            SET summary = {new_summary}
+            WHERE id = {bookid} ;''' )
             mydb.connection.commit()
 
             summary = new_summary
 
         if int(new_pages) != pages :
             changes = True
-            cur.execute('''
+            cur.execute(f'''
             UPDATE book_title
-            SET pages = %s
-            WHERE id = %s ; ''',
-            (new_pages, bookid))
+            SET pages = {new_pages}
+            WHERE id = {bookid} ; ''')
             mydb.connection.commit()
             pages = new_pages
         
