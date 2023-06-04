@@ -209,20 +209,21 @@ def add_book(id):
                 
                 for author in authors.split(','):
                     cur.execute(f'''
-                    CALL revise_authors('{author}',{bookid[0]})
-                 ''')
-                mydb.connection.commit()
+                        CALL revise_authors('{author}',{bookid[0]})
+                    ''')
+                    mydb.connection.commit()
 
                 for category in categories.split(','):
-                     cur.execute(f'''
-                     CALL revise_categories('{category}',{bookid[0]})
-                 ''')
-                mydb.connection.commit()
+                    cur.execute(f'''
+                        CALL revise_categories('{category}',{bookid[0]})
+                    ''')
+                    mydb.connection.commit()
                 
                 for keyword in keywords.split(','):
-                 cur.execute(f'''
-                 CALL revise_keywords('{keyword}',{bookid[0]})''')  
-                mydb.connection.commit() 
+                    cur.execute(f'''
+                        CALL revise_keywords('{keyword}',{bookid[0]})
+                    ''')  
+                    mydb.connection.commit() 
     
                 cur.execute('''
                     INSERT INTO book_instance
@@ -773,6 +774,22 @@ def return_book(id):
         return redirect(url_for('manager_views.borrowings', id=id))
     return redirect(url_for('manager_views.borrowings', id=id))
 
+@manager_views.route('/lib<id>/manager/borrowings/delayed_users', methods=['POST'])
+@library_exists
+@manager_required
+def delayed_users(id):
+    delayed_user = request.form.get('delayed_user')
+    days_delayed = request.form.get('days_delayed')
+
+    cur = mydb.connection.cursor()
+    cur.execute(f'''
+        CALL red_flag_users ({days_delayed}, '{delayed_user}', {id});
+    ''')
+    records = cur.fetchall()
+    cur.close()
+    return render_template("manager_output.html", view='manager', id=id, operation='delayed_users'
+                           , delayed_user=delayed_user, days_delayed=days_delayed, records=records)
+
 ### reviews views
 
 @manager_views.route('/lib<id>/manager/reviews')
@@ -801,6 +818,12 @@ def reviews(id):
         WHERE review.is_active = TRUE;
     ''')
     active_reviews_rec = cur.fetchall()
+
+    cur = mydb.connection.cursor()
+    cur.execute(f'''
+        SELECT category FROM categories;
+    ''')
+    categories = [row[0] for row in cur.fetchall()]
     cur.close()
 
     inactive_reviews = list()
@@ -809,10 +832,11 @@ def reviews(id):
     active_reviews = list()
     for row in active_reviews_rec:
         active_reviews.append({'title': row[0], 'isbn': row[1], 'username': row[2], 'user_id': row[3], 'stars': row[4], 'opinion': row[5], 'id': row[6]})
-
-    return render_template("manager_reviews.html", view='member', id=id
+    
+    return render_template("manager_reviews.html", view='manager', id=id
                            , inactive_reviews=inactive_reviews
-                           , active_reviews=active_reviews)
+                           , active_reviews=active_reviews
+                           , categories=categories)
 
 @manager_views.route('/lib<id>/manager/reviews/switch_activation', methods=['POST'])
 @library_exists
@@ -857,6 +881,22 @@ def delete_review(id):
         print(str(e))
 
     return jsonify({})
+
+@manager_views.route('/lib<id>/manager/reviews/average_rating', methods=['POST'])
+@library_exists
+@manager_required
+def average_rating(id):
+    review_user = request.form.get('review_user')
+    review_category = request.form.get('review_category')
+
+    cur = mydb.connection.cursor()
+    cur.execute(f'''
+        CALL average_rating ({id}, '{review_user}', '{review_category}');
+    ''')
+    records = cur.fetchall()
+    cur.close()
+    return render_template("manager_output.html", view='manager', id=id, operation='average_rating'
+                           , review_user=review_user, review_category=review_category, records=records)
 
 ### settings views
 
@@ -954,7 +994,7 @@ def edit_details(id, bookid):
         WHERE book_title.id = {bookid};
     ''')
     data = cur.fetchone()
-    #print(data)
+    print(data)
 
     cur.execute(f'''
         SELECT author
@@ -963,7 +1003,7 @@ def edit_details(id, bookid):
         WHERE book_authors.book_id = {bookid};
     ''' )
     authors = [row[0] for row in cur.fetchall()]
-    #print(authors)
+    print(authors)
 
     cur.execute(f'''
         SELECT category
@@ -973,7 +1013,7 @@ def edit_details(id, bookid):
     ''' )
     # print(cur.fetchall())
     categories = [row[0] for row in cur.fetchall()]
-    #print(categories)
+    print(categories)
 
     cur.execute(f'''
         SELECT keyword FROM
@@ -982,6 +1022,7 @@ def edit_details(id, bookid):
                 WHERE book_keywords.book_id = {bookid} ;
                 ''')
     book_keywords = [row[0] for row in cur.fetchall()]
+    cur.close()
 
     title = data[0]
     isbn = data[1]
@@ -991,6 +1032,7 @@ def edit_details(id, bookid):
     summary = data[5]
     image = data[6]
 
+    
     if request.method == 'POST':
         new_lang  = request.form.get('edit_langid')
         new_publisher = request.form.get('edit_publisher')
@@ -999,6 +1041,7 @@ def edit_details(id, bookid):
         new_keywords = request.form.get('edit_keys')
         new_summary = request.form.get('edit_summary')
         new_pages = request.form.get('edit_pages')
+        print(new_lang)
 
         #print(int(pages)==data[4])
         #print(len(new_keywords))
@@ -1032,10 +1075,11 @@ def edit_details(id, bookid):
             changes = True
             cur.execute(f'''
             DELETE FROM book_categories
-            WHERE book_id = {bookid} ; ''') 
+            WHERE book_id = {bookid}; ''') 
             mydb.connection.commit() 
 
             for category in new_categories.split(','):
+                category = category.strip()
                 cur.execute(f'''
                 CALL revise_categories('{category}',{bookid});
                  ''')
@@ -1046,24 +1090,26 @@ def edit_details(id, bookid):
             changes = True
             cur.execute(f'''
             DELETE FROM book_authors
-            WHERE book_id = {bookid} ; ''') 
+            WHERE book_id = {bookid}; ''') 
             mydb.connection.commit()
 
             for author in new_authors.split(',') :
+                author = author.strip()
                 cur.execute(f'''
                 CALL revise_authors('{author}',{bookid});
                 ''')
                 mydb.connection.commit()
             authors = list(new_authors.split(','))
 
-        if new_keywords != None and len(new_keywords) > 0 : 
+        if new_keywords != None and len(new_keywords) > 0 :
             changes = True
             cur.execute(f'''
             DELETE FROM book_keywords
-            WHERE book_id = {bookid} ; ''') 
+            WHERE book_id = {bookid}; ''') 
             mydb.connection.commit() 
 
             for keyword in new_keywords.split(','):
+                keyword = keyword.strip()
                 cur.execute(f'''
                 CALL revise_keywords('{keyword}',{bookid}) ;''') 
                 mydb.connection.commit()
@@ -1099,8 +1145,6 @@ def edit_details(id, bookid):
                           isbn = isbn, publisher = publisher, lang_id = lang_id, pages = pages, summary = summary, image = image,
                             authors=authors, categories=categories, book_keywords = book_keywords)
 
-    
-    cur.close()
     return render_template("manager_book_edit.html", view='manager', id=id,bookid=bookid, title = title,
                           isbn = isbn ,publisher = publisher, lang_id = lang_id, pages = pages, summary = summary, image = image,
                             authors=authors, categories=categories, book_keywords = book_keywords)

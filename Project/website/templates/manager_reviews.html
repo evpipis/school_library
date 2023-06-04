@@ -3,12 +3,44 @@
 {% block title %} Manager Reviews {% endblock %}
 
 {% block content %}
+<br></br>
+
+<form action={{ url_for('manager_views.average_rating', id=id) }} method="POST">
+  <h3 align="center"> Compute Average Rating </h3>
+
+  <div class="form-group">
+    <label for="review_user"> User Name </label>
+    <input
+    type="text"
+    class="form-control"
+    id="review_user"
+    name="review_user"
+    value="#all"
+    />
+  </div>
+
+  <div class="form-group">
+    <label for="review_category"> Specify Category </label>
+    <select class="form-control" id="review_category" name="review_category">
+      <option value="#all"> #all </option>
+      {% for category in categories %}
+      <option value="{{category}}"> {{category}} </option>
+      {% endfor %}
+    </select>
+  </div>
+
+  <br />
+  
+  <button type="submit" class="btn btn-primary"> Compute </button>
+  
+</form>
+
 <!-- INACTIVE REVIEWS -->
 <ul class="list-group list-group-flush" id="manager_inactive_reviews">
   <h3 align="center">Inactive Reviews</h3>
   {% for review in inactive_reviews %}
   <li class="list-group-item">
-    Review for {{review.title}} ({{review.isbn}}) by {{review.username}} ({{review.user_id}})
+    <h5> Review for {{review.title}} ({{review.isbn}}) by {{review.username}} ({{review.user_id}}) </h5>
     <form method="POST">
       <label for="stars">Number of stars:</label>
       <select id="stars" name="stars" disabled>
@@ -30,12 +62,14 @@
   {% endfor %}
 </ul>
 
+<br></br>
+
 <!-- ACTIVE REVIEWS -->
 <ul class="list-group list-group-flush" id="manager_active_reviews">
   <h3 align="center">Active Reviews</h3>
   {% for review in active_reviews %}
   <li class="list-group-item">
-    Review for {{review.title}} ({{review.isbn}}) by {{review.username}} ({{review.user_id}})
+    <h5> Review for {{review.title}} ({{review.isbn}}) by {{review.username}} ({{review.user_id}}) </h5>
     <form method="POST">
       <label for="stars">Number of stars:</label>
       <select id="stars" name="stars" disabled>
