@@ -761,7 +761,7 @@ def reviews(id):
     for row in active_reviews_rec:
         active_reviews.append({'title': row[0], 'isbn': row[1], 'username': row[2], 'user_id': row[3], 'stars': row[4], 'opinion': row[5], 'id': row[6]})
 
-    return render_template("manager_reviews.html", view='member', id=id
+    return render_template("manager_reviews.html", view='manager', id=id
                            , inactive_reviews=inactive_reviews
                            , active_reviews=active_reviews)
 

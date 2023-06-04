@@ -325,65 +325,92 @@ def restore():
 
 # statistics views
 
-@admin_views.route('/admin/statistics', methods=['GET', 'POST'])
+@admin_views.route('/admin/statistics', methods=['GET'])
 @admin_required
 def statistics():
+    # cur = mydb.connection.cursor()
+
+    # cur.execute(f'''
+    #             CALL young_teachers_book_worms () ;
+    #             ''')
+    # book_worms = cur.fetchall()
+
+    # cur.execute(f'''
+    #             CALL authors_with_zero_borrows() ;
+    #             ''')
+    # unfamous_authors = [row[1] for row in cur.fetchall()]
+
+    # cur.execute(f'''
+    #             CALL equal_lends () ;
+    #             ''')
+    # equ_managers =  cur.fetchall()
+
+    # cur.execute(f'''
+    #             CALL top_pairs() ;
+    #             ''')
+    # top_pairs = cur.fetchall()
+
+    # cur.close() 
+
     cur = mydb.connection.cursor()
-
     cur.execute(f'''
-                CALL young_teachers_book_worms () ;
-                ''')
-    book_worms = cur.fetchall()
+        SELECT category FROM categories;
+    ''')
+    categories = [row[0] for row in cur.fetchall()]
 
-    cur.execute(f'''
-                CALL authors_with_zero_borrows() ;
-                ''')
-    unfamous_authors = [row[1] for row in cur.fetchall()]
+    return render_template("admin_statistics.html",view='admin', categories=categories)
 
-    cur.execute(f'''
-                CALL equal_lends () ;
-                ''')
-    equ_managers =  cur.fetchall()
-
-    cur.execute(f'''
-                CALL top_pairs() ;
-                ''')
-    top_pairs = cur.fetchall()
-
-    cur.close() 
-    return render_template("admin_statistics.html",view='admin')
-
-@admin_views.route('/admin/managers/operation_1', methods=['POST'])
+@admin_views.route('/admin/statistics/operation_1', methods=['POST'])
 @admin_required
 def operation_1():
+    year = request.form.get('year')
+    month = request.form.get('month')
+
     cur = mydb.connection.cursor()
-
+    cur.execute(f'''
+        CALL borrows_per_school ({month}, {year}) ;
+    ''')
+    records = cur.fetchall()
     cur.close()
-    return
+    return render_template("admin_output.html",view='admin', operation=1, year=year, month=month, records=records)
 
 
-@admin_views.route('/admin/managers/operation_2', methods=['POST'])
+@admin_views.route('/admin/statistics/operation_2', methods=['POST'])
 @admin_required
 def operation_2():
+    category = request.form.get('category')
+    print(category)
+
     cur = mydb.connection.cursor()
+    cur.execute(f'''
+        CALL author_writes_category ('{category}') ;
+    ''')
+    category_authors = cur.fetchall()
 
+    cur.execute(f'''
+        CALL teachers_reading_category ('{category}') ;
+    ''')
+    category_teachers = cur.fetchall()
     cur.close()
-    return
+    return render_template("admin_output.html",view='admin', operation=2, category=category
+                           , authors=category_authors, teachers=category_teachers)
 
 
-@admin_views.route('/admin/managers/operation_3', methods=['POST'])
+@admin_views.route('/admin/statistics/operation_3')
 @admin_required
 def operation_3():
     cur = mydb.connection.cursor()
 
     cur.execute(f'''
-                CALL young_teachers_book_worms () ;
-                ''')
+        CALL young_teachers_book_worms () ;
+    ''')
     book_worms = cur.fetchall()
     cur.close()
-    return
 
-@admin_views.route('/admin/managers/operation_4', methods=['POST'])
+    print(book_worms)
+    return render_template("admin_output.html",view='admin', operation=3, records=book_worms)
+
+@admin_views.route('/admin/statistics/operation_4')
 @admin_required
 def operation_4():
     cur = mydb.connection.cursor()
@@ -391,12 +418,13 @@ def operation_4():
     cur.execute(f'''
                 CALL authors_with_zero_borrows() ;
                 ''')
-    unfamous_authors = [row[1] for row in cur.fetchall()]
+    # [row[1] for row in cur.fetchall()]
+    unfamous_authors = cur.fetchall()
 
     cur.close()
-    return
+    return render_template("admin_output.html",view='admin', operation=4, records=unfamous_authors)
 
-@admin_views.route('/admin/managers/operation_5', methods=['POST'])
+@admin_views.route('/admin/statistics/operation_5')
 @admin_required
 def operation_5():
     cur = mydb.connection.cursor()
@@ -404,12 +432,12 @@ def operation_5():
     cur.execute(f'''
                 CALL equal_lends () ;
                 ''')
-    equ_managers =  cur.fetchall()
-
+    equ_managers = cur.fetchall()
+    print(equ_managers)
     cur.close()
-    return
+    return render_template("admin_output.html",view='admin', operation=5, records=equ_managers)
 
-@admin_views.route('/admin/managers/operation_6', methods=['POST'])
+@admin_views.route('/admin/statistics/operation_6')
 @admin_required
 def operation_6():
     cur = mydb.connection.cursor()
@@ -420,9 +448,9 @@ def operation_6():
     top_pairs = cur.fetchall()
 
     cur.close()
-    return
+    return render_template("admin_output.html",view='admin', operation=6, records=top_pairs)
 
-@admin_views.route('/admin/managers/operation_7', methods=['POST'])
+@admin_views.route('/admin/statistics/operation_7')
 @admin_required
 def operation_7():
     cur = mydb.connection.cursor()
@@ -433,5 +461,5 @@ def operation_7():
     upcoming_authors = cur.fetchall()
 
     cur.close()
-    return
+    return render_template("admin_output.html",view='admin', operation=7, records=upcoming_authors)
 

@@ -1,0 +1,157 @@
+{% extends "base.html" %}
+
+{% block title %} Statistic Output {% endblock %}
+
+{% block content %}
+{% if operation == 1 %}
+<h2>Selected Month is '{{year}}-{{month}}'</h2>
+<table class="styled-table">
+  <h3> Total borrowings per school in a specified month:</h3>
+  <thead>
+    <tr>
+        <th>Name (id)</th>
+        <th>Number of Borrowings</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for record in records %}
+    <tr class="active-row"> 
+        <td>  {{record[0]}} ({{record[1]}}) </td>
+        <td>  {{record[2]}} </td>
+    {% endfor %}
+  </tbody>
+</table>
+<!-- Operation2 -->
+{% elif operation == 2 %}
+<h2>Selected Category is '{{category}}'</h2>
+<table class="styled-table">
+  <h3> All authors related to category :</h3>
+  <thead>
+    <tr>
+        <th>Name</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for author in authors %}
+    <tr class="active-row"> 
+        <td>  {{author[0]}} </td>
+    {% endfor %}
+  </tbody>
+</table>
+<table class="styled-table">
+  <h3> All teachers having borrowd from above category in the last year :</h3>
+  <thead>
+    <tr>
+        <th>Name</th>
+        <th>Username (id)</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for teacher in teachers %}
+    <tr class="active-row"> 
+        <td>  {{teacher[0]}} </td>
+        <td>  {{teacher[1]}} ({{teacher[2]}}) </td>
+    {% endfor %}
+  </tbody>
+</table>
+<!-- Operation 3 -->
+{% elif operation == 3 %}
+<table class="styled-table">
+  <h3> Young Teachers ( < 40 ) with most borrows :</h3>
+  <thead>
+    <tr>
+        <th>Name</th>
+        <th>Username (id)</th>
+        <th>Date of Birth</th>
+        <th>Number of Borrowings</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for record in records %}
+    <tr class="active-row"> 
+        <td>  {{record[0]}} </td>
+        <td>  {{record[1]}} ({{record[2]}}) </td>
+        <td>  {{record[3]}} </td>
+        <td>  {{record[4]}} </td>
+    {% endfor %}
+  </tbody>
+</table>
+<!-- Operation 4 -->
+{% elif operation == 4 %}
+<table class="styled-table">
+  <h3> Authors with zero number of borrows so far :</h3>
+  <thead>
+    <tr>
+        <th>Author (id)</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for record in records %}
+    <tr class="active-row"> 
+        <td>  {{record[1]}} ({{record[0]}}) </td>
+    {% endfor %}
+  </tbody>
+</table>
+<!-- Operation 5 -->
+{% elif operation == 5 %}
+<table class="styled-table">
+  <h3> Managers who lend same number of books in the last year ( with over 20 lends ) :</h3>
+  <thead>
+    <tr>
+        <th>Name</th>
+        <th>Username (id)</th>
+        <th>Lend Count</th>
+        <th>Others with Same Count</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for record in records %}
+    <tr class="active-row"> 
+        <td>  {{record[0]}} </td>
+        <td>  {{record[1]}} ({{record[2]}})</td>
+        <td>  {{record[3]}} </td>
+        <td>  {{record[4]}} </td>
+    {% endfor %}
+  </tbody>
+</table>
+<!-- Operation 6 -->
+{% elif operation == 6 %}
+<table class="styled-table">
+  <h3> Top 3 category pairs encountered together in borrowing list :</h3>
+  <thead>
+    <tr>
+        <th>Category 1</th>
+        <th>Category 2</th>
+        <th>Number of Borrowings</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for record in records %}
+    <tr class="active-row"> 
+        <td>  {{record[0]}} </td>
+        <td>  {{record[1]}} </td>
+        <td>  {{record[2]}} </td>
+    {% endfor %}
+  </tbody>
+</table>
+{% elif operation == 7 %}
+<table class="styled-table">
+  <h3> Authors having written at least five books less than the books written by the author with most written books :</h3>
+  <thead>
+    <tr>
+        <th>Author </th>
+        <th>Number of Books</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for record in records %}
+    <tr class="active-row"> 
+        <td>  {{record[0]}} </td>
+        <td>  {{record[1]}} </td>
+    {% endfor %}
+  </tbody>
+</table>
+{% endif %}
+
+
+{% endblock %}
