@@ -108,6 +108,32 @@ def books(id):
                         ''')
             selected_books = cur.fetchall()
 
+            if selected_books != () and filter_author !='all_books':
+                cur.execute(f'''
+                            SELECT * FROM 
+                            book_authors INNER JOIN authors ON book_authors.author_id = authors.id
+                            WHERE authors.author = '{filter_author}' AND book_authors.book_id = {selected_books[0][2]} ;
+                            ''')
+                if(cur.fetchall()==()):
+                    selected_books = ()
+            
+            if selected_books != () and filter_category != 'all_books':
+                cur.execute(f'''
+                            SELECT * FROM 
+                            categories INNER JOIN book_categories ON categories.id = book_categories.category_id
+                            WHERE categories.category = '{filter_category}' AND book_categories.book_id = {selected_books[0][2]} ;
+                            ''')
+                if(cur.fetchall()==()):
+                    selected_books = ()
+
+            if selected_books != () and filter_copies != 'all_books':
+                cur.execute(f'''
+                            SELECT * FROM book_instance
+                            WHERE book_id = {selected_books[0][2]} AND copies = {filter_copies} ;
+                            ''')
+                if(cur.fetchall()==()):
+                    selected_books = ()               
+
         else:
             
             if filter_author != 'all_books' :
