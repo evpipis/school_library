@@ -1,0 +1,10 @@
+insert into author (id, author) values (1, 'John Smith');
+insert into author (id, author) values (2, 'Emily Johnson');
+insert into author (id, author) values (3, 'Michael Davis');
+insert into author (id, author) values (4, 'Sarah Lee');
+insert into author (id, author) values (5, 'David Rodriguez');
+insert into author (id, author) values (6, 'Jessica Chen');
+insert into author (id, author) values (7, 'William Kim');
+insert into author (id, author) values (8, 'Olivia Patel');
+insert into author (id, author) values (9, 'Daniel Nguyen');
+insert into author (id, author) values (10, 'Sophia Wong');
