@@ -125,7 +125,7 @@ def books(id):
                     cur.execute(f'''
                                 CAll filter_copies({id}, {filter_copies} );
                                 ''')
-                    selected_books.intersection(set(cur.fetchall()))
+                    selected_books = selected_books.intersection(set(cur.fetchall()))
 
             elif filter_category != 'all_books':
                     cur.execute(f'''
@@ -136,13 +136,13 @@ def books(id):
                         cur.execute(f'''
                                     CAll filter_copies({id}, {filter_copies} );
                                     ''')
-                        selected_books.intersection(set(cur.fetchall()))
+                        selected_books = selected_books.intersection(set(cur.fetchall()))
 
             elif filter_copies != '':
                 cur.execute(f'''
                             CAll filter_copies({id}, {filter_copies} );
                             ''')
-                selected_books = cur.fetchall()
+                selected_books = set(cur.fetchall())            
 
         cur.close()
 
@@ -1062,7 +1062,7 @@ def edit_details(id, bookid):
 
         if new_publisher != publisher:
             changes = True
-            cur.execute('''
+            cur.execute(f'''
             UPDATE book_title
             SET lang_id = %s
             WHERE id = %s ; ''',
@@ -1118,22 +1118,20 @@ def edit_details(id, bookid):
 
         if new_summary!= summary:
             changes = True
-            cur.execute('''
+            cur.execute(f'''
             UPDATE book_title 
-            SET summary = %s
-            WHERE id = %s ;''',
-            (new_summary, bookid) )
+            SET summary = {new_summary}
+            WHERE id = {bookid} ;''' )
             mydb.connection.commit()
 
             summary = new_summary
 
         if int(new_pages) != pages :
             changes = True
-            cur.execute('''
+            cur.execute(f'''
             UPDATE book_title
-            SET pages = %s
-            WHERE id = %s ; ''',
-            (new_pages, bookid))
+            SET pages = {new_pages}
+            WHERE id = {bookid} ; ''')
             mydb.connection.commit()
             pages = new_pages
         
