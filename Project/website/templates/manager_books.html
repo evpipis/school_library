@@ -33,28 +33,48 @@
   
       <form method='POST'> 
       <div class="form-group">
-          <label for="filter"> Filter by </label>
-          <select  class="form-control" id="filter" name="filter">
-            <option value="all_books"> All Books </option>
-            <option value="title"> Title </option>
-            <option value="category"> Category </option>
-            <option value="author"> Author </option>
-            <option value="copies"> Book Copies </option>
-          </select>
-        </div>
-        
-        <label for="search_book"> Search keywords </label>
-        <div class="form-group">
-          <input
-          type="text"
-          class="form-control"
-          id="search_book"
-          name="search_book"
-          placeholder="Type here Title/Author/Category you are looking for"
-          />
-        </div>
-  
-        <button type="submit"><i class="fa fa-search"></i>Search</button>
+        <label for="filter_author"> Filter by Author name</label>
+        <select  class="form-control" id="filter_author" name="filter_author">
+          <option value="all_books"> All </option>
+        {% for author in all_authors %}
+        <option value="{{ author }}"> {{ author }} </option>
+        {% endfor %}
+        </select>
+
+        <label for="filter_category"> Filter by Category</label>
+        <select  class="form-control" id="filter_category" name="filter_category">
+          <option value="all_books"> All </option>
+          {% for category in all_categories %}
+          <option value="{{ category }}"> {{ category }} </option>
+          {% endfor %}
+        </select>
+
+
+      <label for="set_title"> Search for a specific Title </label>
+      <div class="form-group">
+        <input
+        type="text"
+        class="form-control"
+        id="set_title"
+        name="set_title"
+        placeholder="Type here the Title you are looking for"
+        />
+      </div>
+
+      <label for="set_copies"> Search for specific number of copies </label>
+      <div class="form-group">
+        <input
+        type="text"
+        class="form-control"
+        id="set_copies"
+        name="set_copies"
+        placeholder="Type here desired number of copies"
+        />
+      </div>
+
+    </div>
+
+      <button type="submit"><i class="fa fa-search"></i>Search</button>
         </form>
   
               <!-- Section-->

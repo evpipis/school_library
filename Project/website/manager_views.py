@@ -53,49 +53,7 @@ def logout(id):
 @manager_views.route('/lib<id>/manager', methods = ['GET', 'POST'])
 @manager_views.route('/lib<id>/manager/books', methods = ['GET', 'POST'])
 def books(id):
-    if request.method=='POST':
-        print("inside POST request")
-        cur = mydb.connection.cursor()
-        cur.execute(f'''
-            SELECT name 
-            FROM school_unit
-            WHERE id = {id};
-        ''')
-        schoolname = cur.fetchone()
 
-        filter = request.form.get('filter')
-        keyword = request.form.get('search_book')
-        print(filter)
-        print(keyword)
-
-        if (filter == 'title'):
-            cur.execute (f'''
-                CALL filter_title({id},'{keyword}');
-            ''')
-        if (filter == 'category'):
-            cur.execute (f'''
-            CALL filter_category({id},'{keyword}');
-            ''')
-        if (filter == 'author'):
-            cur.execute(f'''
-            CALL filter_author ({id},'{keyword}');
-            ''')
-        if (filter == 'copies'):
-            cur.execute(f'''
-                        CALL filter_copies ({id}, '{keyword}');
-                        ''')
-
-        selected_books = cur.fetchall()
-        cur.close()
-
-        print("cursor_closed")
-        print(selected_books)
-        if (selected_books!= ()):
-            flash('Books search was successful.')
-            return render_template("manager_books.html", view='manager', id=id, schoolname = schoolname[0], lib_books = selected_books)
-        else:
-            flash('Books not Found.', category='error')
-    
     cur = mydb.connection.cursor()
     cur.execute(f'''
         SELECT name 
@@ -111,9 +69,95 @@ def books(id):
         WHERE book_instance.school_id = {id};
     ''')
     lib_books = cur.fetchall()
+
+    cur.execute(f'''
+                SELECT category FROM categories''')
+    all_categories = [row[0] for row in cur.fetchall()]
+
+    cur.execute(f'''
+                SELECT author FROM authors''')
+    all_authors = [row[0] for row in cur.fetchall()]
+
+    # if filters applied by user
+    if request.method=='POST':
+        print("inside POST request")
+        cur = mydb.connection.cursor()
+        cur.execute(f'''
+            SELECT name 
+            FROM school_unit
+            WHERE id = {id};
+        ''')
+        schoolname = cur.fetchone()
+
+        filter_author = request.form.get('filter_author')
+        filter_category = request.form.get('filter_category')
+        filter_title = request.form.get('set_title')
+        filter_copies = request.form.get('set_copies')
+
+        print(filter_author)
+        print(filter_category)
+        print(filter_title==None)
+        print(filter_copies=='')
+
+        selected_books=set()
+
+        # assuming title is unique it overwrites other filters...
+        if filter_title != '' :
+            cur.execute(f'''
+                        CALL filter_title ({id},'{filter_title}');
+                        ''')
+            selected_books = cur.fetchall()
+
+        else:
+            
+            if filter_author != 'all_books' :
+                cur.execute(f'''
+                            CALL filter_author({id},'{filter_author}');
+                            ''')
+                selected_books=set(cur.fetchall())
+
+                if filter_category != 'all_books' :
+                    cur.execute(f'''
+                                CALL filter_category({id},'{filter_category}');''')
+                    selected_books = selected_books.intersection(set(cur.fetchall()))
+
+                if filter_copies != '' :
+                    cur.execute(f'''
+                                CAll filter_copies({id}, {filter_copies} );
+                                ''')
+                    selected_books.intersection(set(cur.fetchall()))
+
+            elif filter_category != 'all_books':
+                    cur.execute(f'''
+                                CALL filter_category({id},'{filter_category}');''')
+                    selected_books=set(cur.fetchall())
+
+                    if filter_copies != '' :
+                        cur.execute(f'''
+                                    CAll filter_copies({id}, {filter_copies} );
+                                    ''')
+                        selected_books.intersection(set(cur.fetchall()))
+
+            elif filter_copies != '':
+                cur.execute(f'''
+                            CAll filter_copies({id}, {filter_copies} );
+                            ''')
+                selected_books = cur.fetchall()
+
+        cur.close()
+
+        print("cursor_closed")
+        print(selected_books)
+        if (selected_books!=set() and selected_books != ()):
+            flash('Books Search was successfull!', category='success')
+            return render_template("manager_books.html", view='manager', id=id, schoolname=schoolname[0], lib_books = selected_books,
+                                   all_authors = all_authors, all_categories = all_categories)
+        else:
+            flash('Books not Found!', category='error')
+
     cur.close()
-    print(lib_books)
-    return render_template("manager_books.html", view='manager', id=id, schoolname = schoolname[0], lib_books = lib_books)
+    return render_template("manager_books.html", view='manager', id=id, schoolname = schoolname[0], lib_books = lib_books,
+                           all_authors = all_authors, all_categories = all_categories)
 
 @manager_views.route('/lib<id>/manager/add_book',methods=['GET','POST'])
 @library_exists
@@ -164,18 +208,21 @@ def add_book(id):
                 bookid = cur.fetchone()
                 
                 for author in authors.split(','):
-                     cur.execute(f'''
-                     CALL revise_authors('{author}',{bookid[0]})
-                 ''')
+                    cur.execute(f'''
+                    CALL revise_authors('{author}',{bookid[0]})
+                    ''')
+                mydb.connection.commit()
 
                 for category in categories.split(','):
                      cur.execute(f'''
                      CALL revise_categories('{category}',{bookid[0]})
-                 ''')
+                     ''')
+                 mydb.connection.commit()
                 
                 for keyword in keywords.split(','):
                  cur.execute(f'''
                  CALL revise_keywords('{keyword}',{bookid[0]})''')  
+                mydb.connection.commit() 
     
                 cur.execute('''
                     INSERT INTO book_instance
@@ -237,20 +284,12 @@ def preview(id, bookid):
     cur = mydb.connection.cursor()
 
     cur.execute(f'''
-        SELECT title 
+        SELECT title, isbn, publisher, lang_id, pages, summary, image
         FROM book_title
         WHERE book_title.id = {bookid};
     ''')
-    title = cur.fetchone()
-    print("title=", title)
-
-    cur.execute(f'''
-        SELECT isbn 
-        FROM book_title
-        WHERE book_title.id = {bookid};
-    ''')
-    isbn = cur.fetchone()
-    print("isbn=", isbn)
+    data = cur.fetchone()
+    print(data)
 
     cur.execute(f'''
         SELECT author
@@ -272,6 +311,14 @@ def preview(id, bookid):
     print(categories)
 
     cur.execute(f'''
+        SELECT keyword FROM
+                keywords INNER JOIN book_keywords
+                ON keywords.id = book_keywords.keyword_id
+                WHERE book_keywords.book_id = {bookid} ;
+                ''')
+    book_keywords = [row[0] for row in cur.fetchall()]
+
+    cur.execute(f'''
         SELECT summary 
         FROM book_title
         WHERE book_title.id = {bookid};
@@ -279,9 +326,11 @@ def preview(id, bookid):
     summary = [row[0] for row in cur.fetchall()]
     
     cur.close()
-    return render_template("manager_preview.html", view='manager', id=id
-                           , bookid=bookid ,title=title[0], isbn=isbn[0]
-                           , authors=authors, categories=categories, summary=summary[0])
+    return render_template("manager_preview.html", view='manager', id=id,bookid=bookid, title = data[0],
+                          isbn = data[1],publisher = data[2], lang_id = data[3], pages = data[4], summary = data[5], image = data[6],
+                            authors=authors, categories=categories, book_keywords = book_keywords)
+
+    
 
 ### members views
 
@@ -890,3 +939,170 @@ def change_password(id):
             print(str(e))
 
     return redirect(url_for('manager_views.settings', id=id))
+
+
+
+@manager_views.route('/lib<id>/manager/book<bookid>/book_edit', methods = ['GET', 'POST'])
+@library_exists
+@manager_required
+def edit_details(id, bookid):
+    cur = mydb.connection.cursor()
+
+    cur.execute(f'''
+        SELECT title, isbn, publisher, lang_id, pages, summary, image
+        FROM book_title
+        WHERE book_title.id = {bookid};
+    ''')
+    data = cur.fetchone()
+    #print(data)
+
+    cur.execute(f'''
+        SELECT author
+        FROM authors INNER JOIN book_authors
+        ON authors.id = book_authors.author_id
+        WHERE book_authors.book_id = {bookid};
+    ''' )
+    authors = [row[0] for row in cur.fetchall()]
+    #print(authors)
+
+    cur.execute(f'''
+        SELECT category
+        FROM categories INNER JOIN book_categories
+        ON categories.id = book_categories.category_id
+        WHERE book_categories.book_id = {bookid};
+    ''' )
+    # print(cur.fetchall())
+    categories = [row[0] for row in cur.fetchall()]
+    #print(categories)
+
+    cur.execute(f'''
+        SELECT keyword FROM
+                keywords INNER JOIN book_keywords
+                ON keywords.id = book_keywords.keyword_id
+                WHERE book_keywords.book_id = {bookid} ;
+                ''')
+    book_keywords = [row[0] for row in cur.fetchall()]
+
+    title = data[0]
+    isbn = data[1]
+    publisher = data [2]
+    lang_id = data[3]
+    pages=data[4]
+    summary = data[5]
+    image = data[6]
+
+    if request.method == 'POST':
+        new_lang  = request.form.get('edit_langid')
+        new_publisher = request.form.get('edit_publisher')
+        new_categories= request.form.get('edit_category')
+        new_authors= request.form.get('edit_authors')
+        new_keywords = request.form.get('edit_keys')
+        new_summary = request.form.get('edit_summary')
+        new_pages = request.form.get('edit_pages')
+
+        #print(int(pages)==data[4])
+        #print(len(new_keywords))
+
+        changes = False
+
+        cur = mydb.connection.cursor()
+
+        if new_lang != lang_id :
+            changes = True
+            cur.execute('''
+            UPDATE book_title
+            SET lang_id = %s
+            WHERE id = %s ; ''',
+            (new_lang, bookid[0]))
+            mydb.connection.commit()
+            lang_id = new_lang
+
+        if new_publisher != publisher:
+            changes = True
+            cur.execute('''
+            UPDATE book_title
+            SET lang_id = %s
+            WHERE id = %s ; ''',
+            (new_lang, bookid[0]))
+            mydb.connection.commit()
+            publisher = new_publisher
+
+        # remove existing categories for safety to avoid duplicates and add them again if specified
+        if new_categories != None and len(new_categories) > 0 :
+            changes = True
+            cur.execute('''
+            DELETE FROM book_categories
+            WHERE book_id = %s ; ''', (bookid)) 
+            mydb.connection.commit() 
+
+            for category in new_categories.split(','):
+                cur.execute(f'''
+                CALL revise_categories('{category}',{bookid});
+                 ''')
+                mydb.connection.commit()
+            categories = list(new_categories.split(','))
+
+        if new_authors != None and len(new_authors) > 0 :
+            changes = True
+            cur.execute('''
+            DELETE FROM book_authors
+            WHERE book_id = %s ; ''', (bookid)) 
+            mydb.connection.commit()
+
+            for author in new_authors.split(',') :
+                cur.execute(f'''
+                CALL revise_authors('{author}',{bookid});
+                ''')
+                mydb.connection.commit()
+            authors = list(new_authors.split(','))
+
+        if new_keywords != None and len(new_keywords) > 0 : 
+            changes = True
+            cur.execute('''
+            DELETE FROM book_keywords
+            WHERE book_id = %s ; ''', (bookid)) 
+            mydb.connection.commit() 
+
+            for keyword in new_keywords.split(','):
+                cur.execute(f'''
+                CALL revise_keywords('{keyword}',{bookid}) ;''') 
+                mydb.connection.commit()
+
+            book_keywords = list(new_keywords.split(','))
+
+        if new_summary!= summary:
+            changes = True
+            cur.execute('''
+            UPDATE book_title 
+            SET summary = %s
+            WHERE id = %s ;''',
+            (new_summary, bookid) )
+            mydb.connection.commit()
+
+            summary = new_summary
+
+        if int(new_pages) != pages :
+            changes = True
+            cur.execute('''
+            UPDATE book_title
+            SET pages = %s
+            WHERE id = %s ; ''',
+            (new_pages, bookid))
+            mydb.connection.commit()
+            pages = new_pages
+        
+        if changes:
+            flash('Book-detail changes were submitted successfully.', category='success')
+        else: 
+             flash('No changes made.', category='info')
+
+        cur.close()
+        return render_template("manager_preview.html", view='manager', id=id, bookid=bookid, title = title,
+                          isbn = isbn, publisher = publisher, lang_id = lang_id, pages = pages, summary = summary, image = image,
+                            authors=authors, categories=categories, book_keywords = book_keywords)
+
+    
+    cur.close()
+    return render_template("manager_book_edit.html", view='manager', id=id,bookid=bookid, title = title,
+                          isbn = isbn ,publisher = publisher, lang_id = lang_id, pages = pages, summary = summary, image = image,
+                            authors=authors, categories=categories, book_keywords = book_keywords)

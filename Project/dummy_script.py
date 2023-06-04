@@ -7,7 +7,7 @@ app = Flask(__name__)
  
 app.config['MYSQL_HOST'] = 'localhost'
 app.config['MYSQL_USER'] = 'root'
-app.config['MYSQL_PASSWORD'] = 'my_root_password'
+app.config['MYSQL_PASSWORD'] = 'gatakia22'
 app.config['MYSQL_DB'] = 'SchoolLibrary'
 # secret_key = 'some random string'
  
