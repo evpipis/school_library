@@ -217,10 +217,10 @@ END //
 
 -- filter number of copies
 DROP PROCEDURE IF EXISTS filter_copies;//
-create procedure filter_copies (IN lib_id INT, IN selected_copies INT) BEGIN
-SELECT book_title.title, book_instance.copies, book_title.id FROM 
-book_title INNER JOIN book_instance ON book_title.id = book_instance.book_id 
-WHERE book_instance.school_id = lib_id AND book_instance.copies = selected_copies ;
+	create procedure filter_copies (IN lib_id INT, IN selected_copies INT) BEGIN
+	SELECT book_title.title, book_instance.copies, book_title.id FROM 
+	book_title INNER JOIN book_instance ON book_title.id = book_instance.book_id 
+	WHERE book_instance.school_id = lib_id AND book_instance.copies = selected_copies ;
 END;
 // 
 
@@ -228,14 +228,27 @@ END;
 /*3.2.2*/
 DROP PROCEDURE IF EXISTS red_flag_users;//
 create procedure red_flag_users (IN delay_days INT, IN full_name VARCHAR(40), IN lib_id INT) BEGIN
-SELECT USR.id FROM
-user AS USR INNER JOIN borrowing AS BR ON USR.id = BR.user_id
-WHERE DAY(current_timestamp()) >= (DAY(borrowing.borrow_date) + (delay_days + 7) ) AND BR.return_date is NULL 
-AND borrowing.status = 'delayed'
-AND USR.school_id = lib_id AND USR.name = full_name 
-GROUP BY USR.id;
+	SELECT user.name, user.username, user.id, COUNT(*) AS total_delays
+    FROM user JOIN borrowing ON borrowing.user_id = user.id
+	WHERE user.school_id = lib_id AND borrowing.status = 'delayed'
+		AND (full_name = '#all' OR full_name = user.name)
+		AND DATE_ADD(borrowing.borrow_date, INTERVAL 7 DAY) <= DATE_SUB(CURRENT_DATE(), INTERVAL delay_days DAY)
+		GROUP BY user.id
+		ORDER BY total_delays DESC;
 END;
 //
+
+-- /*3.2.2*/
+-- DROP PROCEDURE IF EXISTS red_flag_users;//
+-- create procedure red_flag_users (IN delay_days INT, IN full_name VARCHAR(40), IN lib_id INT) BEGIN
+-- 	SELECT USR.id FROM
+-- 	user AS USR INNER JOIN borrowing AS BR ON USR.id = BR.user_id
+-- 	WHERE DAY(current_timestamp()) >= (DAY(borrowing.borrow_date) + (delay_days + 7) ) AND BR.return_date is NULL 
+-- 	AND borrowing.status = 'delayed'
+-- 	AND USR.school_id = lib_id AND USR.name = full_name 
+-- 	GROUP BY USR.id;
+-- END;
+-- //
 
 /*3.2.3*/
 
@@ -244,10 +257,10 @@ END;
 -- check here
 
 DROP PROCEDURE IF EXISTS average_user_rating;//
-create procedure average_user_rating (IN lib_id INT, IN select_name VARCHAR(40) ) BEGIN
-SELECT user.username, AVG(stars) FROM 
-review INNER JOIN user ON review.user_id = user.id
-WHERE user.school_id = lib_id AND user.username = select_name ;
+	create procedure average_user_rating (IN lib_id INT, IN select_name VARCHAR(40) ) BEGIN
+	SELECT user.username, AVG(stars) FROM 
+	review INNER JOIN user ON review.user_id = user.id
+	WHERE user.school_id = lib_id AND user.username = select_name ;
 END; 
 //
 
