@@ -14,7 +14,7 @@
 * Run
 
       $ git clone https://github.com/evpipis/school_library.git
-      $ cd hotel-management
+      $ cd school-library
 
 * Create config.py file in website folder and add the following credentials,
 
