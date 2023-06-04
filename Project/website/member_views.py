@@ -64,7 +64,7 @@ def books(id):
     schoolname = cur.fetchone()
 
     cur.execute(f'''
-        SELECT title, copies, book_title.id
+        SELECT title, copies, book_title.id, image
         FROM book_title INNER JOIN book_instance
         ON book_title.id = book_instance.book_id
         WHERE book_instance.school_id = {id};
@@ -107,7 +107,7 @@ def books(id):
                         ''')
             selected_books = cur.fetchall()
 
-            print(selected_books)
+            #print(selected_books)
 
             if selected_books != () and filter_author !='all_books':
                 cur.execute(f'''
@@ -228,6 +228,7 @@ def preview(id, bookid):
     reserved = (cur.fetchall() != () )
 
     cur.close()
+    image = "\""+data[6]+"\""
     return render_template("member_preview.html", view='member', id=id,bookid=bookid, title = data[0],
                           isbn = data[1],publisher = data[2], lang_id = data[3], pages = data[4], summary = data[5], image = data[6],
                             authors=authors, categories=categories, book_keywords = book_keywords)
