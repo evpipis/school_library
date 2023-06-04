@@ -101,8 +101,11 @@ create table book_instance
 	school_id int not null,
 	copies int not null,
 	foreign key(school_id) references school_unit(id),
-	foreign key(book_id) references book_title(id)
+	foreign key(book_id) references book_title(id),
+    CONSTRAINT `book_instance` UNIQUE (`book_id`,`school_id`)
 );
+
+
 
 create table review
 (

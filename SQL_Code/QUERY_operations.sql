@@ -215,6 +215,17 @@ END //
 
 /*3.2.1 filter author, category ,title-->same procedures as user */
 
+-- filter everything
+-- DROP PROCEDURE IF EXISTS filter_everything;//
+-- create procedure filter_everything (IN schoolid INT, IN title VARCHAR (40), IN cat VARCHAR(40), IN word VARCHAR(40)) BEGIN
+-- 	SELECT book_title.title, book_instance.copies, book_title.id FROM 
+-- 	book_title INNER JOIN book_instance ON book_title.id = book_instance.book_id 
+-- 	WHERE book_instance.school_id = schoolid
+-- 		AND (title = '#all' OR book_title.title = title)
+--         AND (cat = '#all' OR cat = book_
+-- END;//
+
+
 -- filter number of copies
 DROP PROCEDURE IF EXISTS filter_copies;//
 	create procedure filter_copies (IN lib_id INT, IN selected_copies INT) BEGIN
@@ -248,14 +259,14 @@ create procedure average_rating (IN lib_id INT, IN select_name VARCHAR(40), IN s
     JOIN book_categories ON review.book_id = book_categories.book_id
     JOIN categories ON book_categories.category_id = categories.id
     WHERE user.school_id = lib_id AND (select_name = '#all' OR select_name = user.name)
-		AND (select_category = '#all' OR select_category = categories.category)
+		AND review.is_active = TRUE AND(select_category = '#all' OR select_category = categories.category)
 	GROUP BY user.id, categories.id;
 END; 
 //
 
 -- check here
 
-DROP PROCEDURE IF EXISTS average_user_rating;//
+-- DROP PROCEDURE IF EXISTS average_user_rating;//
 -- create procedure average_user_rating (IN lib_id INT, IN select_name VARCHAR(40) ) BEGIN
 -- 	SELECT user.username, AVG(stars) FROM 
 -- 	review INNER JOIN user ON review.user_id = user.id
@@ -266,7 +277,7 @@ DROP PROCEDURE IF EXISTS average_user_rating;//
 -- filter category
 
 -- check here
-DROP PROCEDURE IF EXISTS average_category_rating;//
+-- DROP PROCEDURE IF EXISTS average_category_rating;//
 -- create procedure average_category_rating (IN lib_id INT, IN select_category VARCHAR(40)) BEGIN
 -- SELECT AVG (stars) FROM 
 -- review INNER JOIN book_title ON review.book_id = book_title.id

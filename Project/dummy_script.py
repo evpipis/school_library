@@ -7,7 +7,7 @@ app = Flask(__name__)
  
 app.config['MYSQL_HOST'] = 'localhost'
 app.config['MYSQL_USER'] = 'root'
-app.config['MYSQL_PASSWORD'] = 'gatakia22'
+app.config['MYSQL_PASSWORD'] = 'my_root_password'
 app.config['MYSQL_DB'] = 'SchoolLibrary'
 # secret_key = 'some random string'
  
@@ -27,8 +27,8 @@ def daterange(start_date, end_date):
 
 def insert_dummy_data():
     global mydb
-    start_date = date(2023, 1, 1)
-    end_date = date(2023, 6, 2) # today
+    start_date = date(2022, 1, 1)
+    end_date = date(2023, 6, 4) # today
     for single_date in daterange(start_date, end_date):
         cur_date = str(single_date.strftime("%Y-%m-%d"))
         print(cur_date)
@@ -92,7 +92,7 @@ def insert_dummy_data():
         cur.close()
 
         # try reserve 3 books per day
-        for po in range(3):
+        for po in range(5):
             cur = mydb.connection.cursor()
             cur.execute(f'''
                 SELECT book_instance.school_id, book_instance.book_id, member.id, manager.id
@@ -118,8 +118,8 @@ def insert_dummy_data():
             else:
                 print(f"Error: reserve({book_id, member_id, cur_date})")
         
-        # cancel half reservation per day
-        for po in range(1):
+        # cancel one reservation per day
+        for po in range(2):
             if random.randint(0, 1) == 0:
                 continue
             # school_id = random.randint(1, schools_num)
@@ -147,8 +147,8 @@ def insert_dummy_data():
             else:
                 print(f"Error: cancel({book_id, member_id, cur_date})")
 
-        # try borrow 3 books per day
-        for po in range(3):
+        # try borrow 4 books per day
+        for po in range(5):
             # school_id = random.randint(1, schools_num)
 
             cur = mydb.connection.cursor()
@@ -177,7 +177,7 @@ def insert_dummy_data():
                 print(f"Error: borrow({book_id, member_id, manager_id, cur_date})")
         
         # return half book per day
-        for po in range(1):
+        for po in range(3):
             if random.randint(0, 1) == 0:
                 continue
             # school_id = random.randint(1, schools_num)
