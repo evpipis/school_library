@@ -126,7 +126,7 @@ def books(id):
                 if(cur.fetchall()==()):
                     selected_books = ()
 
-            if selected_books != () and filter_copies != 'all_books':
+            if selected_books != () and filter_copies != '':
                 cur.execute(f'''
                             SELECT * FROM book_instance
                             WHERE book_id = {selected_books[0][2]} AND copies = {filter_copies} ;

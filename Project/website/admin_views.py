@@ -351,7 +351,7 @@ def restore():
         flash('No backup file uploaded, the last stored version was used.', category='success')
         
     # Define the command to restore the database
-    command = config.mysql_exe_path + f' -u {config.mysql_user} -p{config.mysql_password} {config.mysql_db} < {config.backup_file_path}'
+    command = config.mysql_exe_path + f' -u {config.mysql_user} -p {config.mysql_password} {config.mysql_db} < {config.backup_file_path}'
     # command = f'mysql -u {config.mysql_user} -p{config.mysql_password} flask2 < {backup_path}'
     print(command)
 
